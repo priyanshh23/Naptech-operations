@@ -59,7 +59,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark-dashboard", darkMode);
+    document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -95,7 +95,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F9FB] text-[#111827] transition-colors dark-dashboard:bg-[#07111A] dark-dashboard:text-slate-100">
+    <div className="min-h-screen bg-[#F7F9FB] text-[#111827] transition-colors dark:bg-[#07111A] dark:text-slate-100">
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col border-r border-white/10 bg-[#020B14] text-white transition-transform duration-300 lg:translate-x-0",
@@ -140,7 +140,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
       </aside>
 
       <div className="lg:pl-[236px]">
-        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl transition-colors dark-dashboard:border-white/10 dark-dashboard:bg-[#07111A]/90 lg:px-8">
+        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#07111A]/90 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
@@ -150,9 +150,9 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
               >
                 <Menu size={20} />
               </button>
-              <form className="hidden h-11 w-[340px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm transition-colors dark-dashboard:border-white/10 dark-dashboard:bg-white/5 md:flex" onSubmit={handleSearch}>
+              <form className="hidden h-11 w-[340px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 md:flex" onSubmit={handleSearch}>
                 <Search size={18} className="text-slate-500" />
-                <input className="w-full bg-transparent text-sm outline-none dark-dashboard:text-white" name="query" placeholder="Search anything..." />
+                <input className="w-full bg-transparent text-sm outline-none dark:text-white" name="query" placeholder="Search anything..." />
                 <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">⌘K</span>
               </form>
             </div>
@@ -160,7 +160,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
             <div className="flex items-center gap-3">
               <button
                 aria-label="Toggle dark theme"
-                className="grid h-10 w-10 place-items-center rounded-xl text-slate-700 transition hover:bg-slate-100 dark-dashboard:text-slate-200 dark-dashboard:hover:bg-white/10"
+                className="grid h-10 w-10 place-items-center rounded-xl text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10"
                 onClick={() => setDarkMode((value) => !value)}
                 type="button"
               >
@@ -170,7 +170,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
                 <Bell size={18} />
                 <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-[#19C93B] text-[10px] font-bold text-white">5</span>
               </Link>
-              <button className="flex items-center gap-2 text-sm font-semibold text-[#087B25] dark-dashboard:text-[#8BFF4D]" onClick={() => setProfileOpen((value) => !value)} type="button">
+              <button className="flex items-center gap-2 text-sm font-semibold text-[#087B25] dark:text-[#8BFF4D]" onClick={() => setProfileOpen((value) => !value)} type="button">
                 Admin
                 <ChevronDown size={16} />
               </button>
@@ -179,11 +179,11 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
 
           <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h1 className="text-2xl font-semibold tracking-normal text-[#111827] dark-dashboard:text-white">Welcome back, Admin! 👋</h1>
-              <p className="mt-1 text-sm text-[#6B7280] dark-dashboard:text-slate-400">Here&apos;s what&apos;s happening in your factory today.</p>
+              <h1 className="text-2xl font-semibold tracking-normal text-[#111827] dark:text-white">Welcome back, Admin! 👋</h1>
+              <p className="mt-1 text-sm text-[#6B7280] dark:text-slate-400">Here&apos;s what&apos;s happening in your factory today.</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <label className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm dark-dashboard:border-white/10 dark-dashboard:bg-white/5 dark-dashboard:text-slate-200">
+              <label className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
                 <CalendarDays size={17} />
                 <input className="bg-transparent outline-none" onChange={(event) => setDate(event.target.value)} type="date" value={date} />
               </label>

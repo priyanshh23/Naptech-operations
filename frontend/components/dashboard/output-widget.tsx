@@ -15,7 +15,7 @@ export function ProductionOutputWidget({
   return (
     <DashboardCard delay={0.32}>
       <div className="flex items-center justify-between">
-        <h2 className="mt-1 text-lg font-semibold text-[#111827] dark-dashboard:text-white">Production Target</h2>
+        <h2 className="mt-1 text-lg font-semibold text-[#111827] dark:text-white">Production Target</h2>
         <Link className="text-sm font-semibold text-[#19C93B]" href="/production">View all</Link>
       </div>
 
