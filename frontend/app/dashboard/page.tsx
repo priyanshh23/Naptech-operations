@@ -27,22 +27,22 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-12">
+      <section className="mt-5 grid gap-5 lg:grid-cols-12">
         <InventoryOverview data={inventoryCategories} />
         <ProductionOverview data={productionSeries} />
+        <AlertsPanel alerts={alerts} />
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_380px]">
-        <AlertsPanel alerts={alerts} />
+      <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_360px]">
         <ProductionOutputWidget {...outputProgress} />
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-12">
+      <section className="mt-5 grid gap-5 lg:grid-cols-12">
         <LowStockTable items={lowStockItems} />
         <ActiveTasksTable tasks={activeTasks} />
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-12">
+      <section className="mt-5 grid gap-5 lg:grid-cols-12">
         <ActivityTimeline items={recentActivities} />
       </section>
     </DashboardShell>

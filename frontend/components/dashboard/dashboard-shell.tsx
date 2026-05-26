@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import type { FormEvent, ReactNode } from "react";
@@ -96,9 +97,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
       >
         <div className="flex h-[76px] items-center justify-between px-4">
           <Link className="flex items-center gap-2.5" href="/dashboard">
-            <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#8BFF4D]/60 bg-[#19C93B]/15 text-[#8BFF4D] shadow-[0_0_22px_rgba(25,201,59,0.22)]">
-              <span className="text-base font-black italic">NP</span>
-            </div>
+            <Image alt="Naptech" className="h-10 w-10 rounded-xl object-contain" height={40} src="/logo.png" width={40} />
             <div>
               <p className="text-lg font-semibold tracking-normal text-[#19C93B]">NAPTECH</p>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white">Factory OS</p>
@@ -116,21 +115,21 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
           <NavGroup items={system} label="System" pathname={pathname} setOpen={setOpen} />
         </nav>
 
-        <div className="m-3 rounded-xl border border-white/10 bg-white/5 p-3">
+        <div className="m-3 rounded-xl border border-white/10 bg-white/5 p-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="relative grid h-9 w-9 place-items-center rounded-full bg-[#19C93B] text-xs font-bold text-white">
+            <div className="relative grid h-8 w-8 place-items-center rounded-full bg-[#19C93B] text-xs font-bold text-white">
               A
-              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#020B14] bg-[#8BFF4D]" />
+              <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-[#020B14] bg-[#8BFF4D]" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white">Admin User</p>
-              <p className="text-[11px] text-slate-400">Super Admin</p>
+              <p className="text-xs font-semibold text-white">Admin User</p>
+              <p className="text-[10px] text-slate-400">Super Admin</p>
             </div>
             <button onClick={logout} type="button">
               <ChevronDown size={16} />
             </button>
           </div>
-          <div className="mt-5 flex items-center justify-between text-[11px] text-slate-500">
+          <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500">
             <span>© 2026 Naptech</span>
             <span>v1.0.0</span>
           </div>
@@ -163,9 +162,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
                 <Bell size={18} />
                 <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-[#19C93B] text-[10px] font-bold text-white">5</span>
               </Link>
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#19C93B]/40 bg-[#19C93B]/10 text-[#19C93B]">
-                NP
-              </div>
+              <Image alt="Naptech" className="h-10 w-10 rounded-xl object-contain" height={40} src="/logo.png" width={40} />
               <button className="flex items-center gap-2 text-sm font-semibold text-[#087B25]" onClick={() => setProfileOpen((value) => !value)} type="button">
                 NAPTECH
                 <ChevronDown size={16} />

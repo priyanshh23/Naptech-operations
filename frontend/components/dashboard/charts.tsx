@@ -19,13 +19,13 @@ import type { InventoryCategory, ProductionPoint } from "@/types/dashboard";
 
 export function InventoryOverview({ data }: Readonly<{ data: InventoryCategory[] }>) {
   return (
-    <DashboardCard className="lg:col-span-5" delay={0.18}>
+    <DashboardCard className="overflow-hidden lg:col-span-4" delay={0.18}>
       <PanelTitle href="/inventory" title="Inventory Overview" />
-      <div className="mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
-        <div className="relative h-56">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[190px_1fr]">
+        <div className="relative h-52 min-w-0">
           <ResponsiveContainer height="100%" width="100%">
             <PieChart>
-              <Pie data={data} dataKey="value" innerRadius={68} outerRadius={98} paddingAngle={4}>
+              <Pie data={data} dataKey="value" innerRadius={58} outerRadius={84} paddingAngle={4}>
                 {data.map((entry) => (
                   <Cell fill={entry.color} key={entry.name} />
                 ))}
@@ -35,19 +35,19 @@ export function InventoryOverview({ data }: Readonly<{ data: InventoryCategory[]
           </ResponsiveContainer>
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
             <div className="text-center">
-              <p className="text-sm text-[#6B7280]">Total Items</p>
-              <p className="text-2xl font-semibold text-[#111827]">2,458</p>
+              <p className="text-xs text-[#6B7280]">Total Items</p>
+              <p className="text-xl font-semibold text-[#111827]">2,458</p>
             </div>
           </div>
         </div>
-        <div className="space-y-4 self-center">
+        <div className="min-w-0 space-y-2 self-center">
           {data.map((item) => (
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3" key={item.name}>
-              <div className="flex items-center gap-3">
-                <span className="h-3 w-3 rounded-full" style={{ background: item.color }} />
-                <span className="text-sm font-semibold text-[#111827]">{item.name}</span>
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2" key={item.name}>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
+                <span className="truncate text-xs font-semibold text-[#111827]">{item.name}</span>
               </div>
-              <span className="text-sm font-semibold text-[#6B7280]">
+              <span className="shrink-0 text-xs font-semibold text-[#6B7280]">
                 {Math.round((item.value / 100) * 2458).toLocaleString("en-IN")} ({item.value}%)
               </span>
             </div>
@@ -60,9 +60,9 @@ export function InventoryOverview({ data }: Readonly<{ data: InventoryCategory[]
 
 export function ProductionOverview({ data }: Readonly<{ data: ProductionPoint[] }>) {
   return (
-    <DashboardCard className="lg:col-span-7" delay={0.22}>
+    <DashboardCard className="lg:col-span-5" delay={0.22}>
       <PanelTitle href="/production" title="Production Overview" />
-      <div className="mt-6 h-72">
+      <div className="mt-5 h-64">
         <ResponsiveContainer height="100%" width="100%">
           <AreaChart data={data}>
             <defs>
