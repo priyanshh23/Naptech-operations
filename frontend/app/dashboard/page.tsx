@@ -21,19 +21,19 @@ import {
 export default function DashboardPage() {
   return (
     <DashboardShell>
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {kpiMetrics.map((metric, index) => (
           <KpiCard index={index} key={metric.label} metric={metric} />
         ))}
       </section>
 
-      <section className="mt-5 grid gap-5 lg:grid-cols-12">
+      <section className="mt-5 grid gap-5 xl:grid-cols-12">
         <InventoryOverview data={inventoryCategories} />
         <ProductionOverview data={productionSeries} />
-        <AlertsPanel alerts={alerts} />
       </section>
 
       <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_360px]">
+        <AlertsPanel alerts={alerts} />
         <ProductionOutputWidget {...outputProgress} />
       </section>
 

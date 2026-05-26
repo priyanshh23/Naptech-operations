@@ -108,7 +108,7 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 pb-3">
+        <nav className="flex-1 overflow-y-auto px-3 pb-2">
           <NavLink active={pathname === "/dashboard"} href="/dashboard" icon={Home} label="Dashboard" onClick={() => setOpen(false)} />
           <NavGroup items={operations} label="Operations" pathname={pathname} setOpen={setOpen} />
           <NavGroup items={management} label="Management" pathname={pathname} setOpen={setOpen} />
@@ -128,10 +128,6 @@ export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) 
             <button onClick={logout} type="button">
               <ChevronDown size={16} />
             </button>
-          </div>
-          <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500">
-            <span>© 2026 Naptech</span>
-            <span>v1.0.0</span>
           </div>
         </div>
       </aside>
@@ -217,7 +213,7 @@ function NavGroup({
   setOpen: (open: boolean) => void;
 }>) {
   return (
-    <div className="mt-5">
+    <div className="mt-4">
       <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
       <div className="space-y-0.5">
         {items.map((item) => (
@@ -254,7 +250,7 @@ function NavLink({
   return (
     <Link
       className={cn(
-        "group flex items-center justify-between rounded-xl px-3 py-2.5 text-[13px] font-medium text-slate-300 transition hover:bg-white/5 hover:text-white",
+        "group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-medium text-slate-300 transition hover:bg-white/5 hover:text-white",
         active && "bg-[#19C93B] text-white shadow-[0_0_18px_rgba(25,201,59,0.24)]",
       )}
       href={href}

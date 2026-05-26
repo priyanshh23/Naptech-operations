@@ -23,22 +23,22 @@ export function KpiCard({ metric, index }: Readonly<{ metric: KpiMetric; index: 
           : { text: "text-[#19C93B]", bg: "bg-[#19C93B]/10", stroke: "#19C93B" };
 
   return (
-    <DashboardCard className="p-4" delay={index * 0.05}>
+    <DashboardCard className="min-h-[128px] p-3.5" delay={index * 0.05}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium text-[#6B7280]">{metric.label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-normal text-[#111827]">{metric.value}</p>
+          <p className="text-[11px] font-medium text-[#6B7280]">{metric.label}</p>
+          <p className="mt-1.5 text-xl font-semibold tracking-normal text-[#111827]">{metric.value}</p>
         </div>
-        <div className={`flex h-11 w-11 items-center justify-center rounded-full ${accent.bg} ${accent.text}`}>
-          <Icon size={19} />
+        <div className={`flex h-9 w-9 items-center justify-center rounded-full ${accent.bg} ${accent.text}`}>
+          <Icon size={17} />
         </div>
       </div>
-      <div className="mt-3 flex items-end justify-between gap-3">
-        <div className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${accent.bg} ${accent.text}`}>
+      <div className="mt-2.5 flex items-end justify-between gap-2">
+        <div className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold ${accent.bg} ${accent.text}`}>
           <TrendIcon size={12} />
           {metric.trend}
         </div>
-        <div className="h-10 w-24">
+        <div className="h-8 w-20">
           <ResponsiveContainer height="100%" width="100%">
             <AreaChart data={metric.sparkline}>
               <defs>
