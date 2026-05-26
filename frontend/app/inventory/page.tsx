@@ -3,7 +3,7 @@
 import { History, PackagePlus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { AppShell } from "@/components/app-shell";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { inventoryItems as initialInventory, inventoryLogs } from "@/lib/mock-data";
 import type { InventoryItem } from "@/lib/types";
@@ -74,7 +74,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <AppShell>
+    <DashboardShell>
       <PageHeader
         action={
           <Button
@@ -213,7 +213,7 @@ export default function InventoryPage() {
           </Card>
         </div>
       ) : null}
-    </AppShell>
+    </DashboardShell>
   );
 }
 
@@ -242,4 +242,3 @@ function Field({
     </label>
   );
 }
-

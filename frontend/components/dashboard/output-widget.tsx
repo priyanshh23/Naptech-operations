@@ -1,4 +1,5 @@
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
+import Link from "next/link";
 
 export function ProductionOutputWidget({
   percentage,
@@ -13,9 +14,9 @@ export function ProductionOutputWidget({
 }>) {
   return (
     <DashboardCard delay={0.32}>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#19C93B]">Daily Output</p>
+      <div className="flex items-center justify-between">
         <h2 className="mt-1 text-xl font-semibold text-[#111827]">Production Target</h2>
+        <Link className="text-sm font-semibold text-[#19C93B]" href="/production">View all</Link>
       </div>
 
       <div className="mt-8 flex items-center justify-center">
@@ -39,6 +40,10 @@ export function ProductionOutputWidget({
         <OutputStat label="Achieved" value={achieved} />
         <OutputStat label="Remaining" value={remaining} />
       </div>
+      <div className="mt-3 rounded-2xl bg-slate-50 p-3 text-center text-sm">
+        <span className="font-semibold text-[#111827]">Defective</span>
+        <span className="ml-2 text-[#6B7280]">18 (1.4%)</span>
+      </div>
     </DashboardCard>
   );
 }
@@ -51,4 +56,3 @@ function OutputStat({ label, value }: Readonly<{ label: string; value: number }>
     </div>
   );
 }
-

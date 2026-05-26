@@ -13,8 +13,8 @@ import type {
 export const kpiMetrics: KpiMetric[] = [
   {
     label: "Total Inventory Value",
-    value: "₹48.6L",
-    trend: "+12.4%",
+    value: "₹48,75,230",
+    trend: "12.5% vs yesterday",
     trendDirection: "up",
     icon: Boxes,
     sparkline: [{ value: 28 }, { value: 34 }, { value: 31 }, { value: 42 }, { value: 47 }, { value: 54 }],
@@ -22,23 +22,23 @@ export const kpiMetrics: KpiMetric[] = [
   {
     label: "Low Stock Items",
     value: "18",
-    trend: "-6 from yesterday",
-    trendDirection: "down",
+    trend: "Needs Attention",
+    trendDirection: "up",
     icon: AlertTriangle,
     sparkline: [{ value: 42 }, { value: 38 }, { value: 34 }, { value: 27 }, { value: 22 }, { value: 18 }],
   },
   {
     label: "Active Production",
-    value: "42",
-    trend: "+8.1%",
+    value: "32",
+    trend: "12 In Progress",
     trendDirection: "up",
     icon: Activity,
     sparkline: [{ value: 22 }, { value: 25 }, { value: 31 }, { value: 35 }, { value: 39 }, { value: 42 }],
   },
   {
     label: "Completed Today",
-    value: "316",
-    trend: "+24 units",
+    value: "15",
+    trend: "20% vs yesterday",
     trendDirection: "up",
     icon: CheckCircle2,
     sparkline: [{ value: 120 }, { value: 168 }, { value: 206 }, { value: 244 }, { value: 281 }, { value: 316 }],
@@ -46,87 +46,101 @@ export const kpiMetrics: KpiMetric[] = [
 ];
 
 export const inventoryCategories: InventoryCategory[] = [
-  { name: "Raw Materials", value: 34, color: "#19C93B" },
-  { name: "Components", value: 28, color: "#8BFF4D" },
-  { name: "Sub-Assemblies", value: 22, color: "#22C55E" },
-  { name: "Finished Goods", value: 16, color: "#064E3B" },
+  { name: "Raw Materials", value: 50.7, color: "#19C93B" },
+  { name: "Components", value: 30.9, color: "#B6E500" },
+  { name: "Sub-Assemblies", value: 10.0, color: "#2563EB" },
+  { name: "Finished Goods", value: 6.1, color: "#7C3AED" },
+  { name: "Others", value: 2.3, color: "#AAB2C0" },
 ];
 
 export const productionSeries: ProductionPoint[] = [
-  { shift: "06:00", planned: 80, completed: 64 },
-  { shift: "08:00", planned: 140, completed: 132 },
-  { shift: "10:00", planned: 210, completed: 196 },
-  { shift: "12:00", planned: 280, completed: 252 },
-  { shift: "14:00", planned: 350, completed: 318 },
-  { shift: "16:00", planned: 420, completed: 388 },
+  { shift: "Mon", planned: 36, completed: 18 },
+  { shift: "Tue", planned: 52, completed: 34 },
+  { shift: "Wed", planned: 46, completed: 24 },
+  { shift: "Thu", planned: 76, completed: 42 },
+  { shift: "Fri", planned: 94, completed: 64 },
+  { shift: "Sat", planned: 73, completed: 48 },
 ];
 
 export const alerts: AlertItem[] = [
   {
-    title: "Critical stock: Fastener Kit",
-    description: "6 units remaining against minimum 25.",
+    title: "Low stock: Brake Pad Kit",
+    description: "Current: 5 | Minimum: 20",
     type: "low_stock",
-    time: "8 min ago",
+    time: "2m ago",
   },
   {
-    title: "Line 2 output delay",
-    description: "Gear housing inspection is 34 minutes behind plan.",
+    title: "Production delay in Line 2",
+    description: "Steering Assembly",
     type: "delay",
-    time: "18 min ago",
+    time: "15m ago",
   },
   {
-    title: "Preventive maintenance due",
-    description: "CNC-M4 lubrication checklist pending.",
+    title: "Low stock: Oil Seal",
+    description: "Current: 8 | Minimum: 25",
+    type: "low_stock",
+    time: "1h ago",
+  },
+  {
+    title: "Maintenance due: CNC-02",
+    description: "VMC Machine",
     type: "maintenance",
-    time: "42 min ago",
+    time: "2h ago",
   },
 ];
 
 export const lowStockItems: LowStockItem[] = [
-  { itemName: "Fastener Kit", sku: "FST-KIT-080", currentStock: 6, minimumStock: 25, status: "Critical" },
-  { itemName: "Clutch Cable", sku: "CLT-CAB-021", currentStock: 9, minimumStock: 15, status: "Low" },
-  { itemName: "Brake Pad Shim", sku: "BRK-SHM-044", currentStock: 18, minimumStock: 24, status: "Warning" },
-  { itemName: "Sensor Bracket", sku: "SNS-BKT-119", currentStock: 12, minimumStock: 30, status: "Critical" },
+  { itemName: "Brake Pad Kit", sku: "BP-001", currentStock: 5, minimumStock: 20, status: "Low" },
+  { itemName: "Oil Seal", sku: "OS-002", currentStock: 8, minimumStock: 25, status: "Low" },
+  { itemName: "Ball Bearing 6203", sku: "BB-6203", currentStock: 12, minimumStock: 30, status: "Low" },
+  { itemName: "Clutch Plate", sku: "CP-004", currentStock: 7, minimumStock: 15, status: "Low" },
+  { itemName: "Air Filter", sku: "AF-005", currentStock: 10, minimumStock: 20, status: "Low" },
 ];
 
 export const activeTasks: ActiveProductionTask[] = [
-  { taskName: "Brake sub-unit assembly", line: "Line 01", progress: 72, assignedWorker: "Ravi Kumar", status: "Running" },
-  { taskName: "Gear housing inspection", line: "Line 02", progress: 44, assignedWorker: "Neha Singh", status: "Delayed" },
-  { taskName: "Clutch cable packing", line: "Line 03", progress: 88, assignedWorker: "Aman Verma", status: "Review" },
-  { taskName: "Fastener bin preparation", line: "Stores", progress: 26, assignedWorker: "Iqbal Khan", status: "Queued" },
+  { taskName: "Steering Assembly", line: "Line 1", progress: 65, assignedWorker: "Ravi Kumar", status: "Running" },
+  { taskName: "Brake Assembly", line: "Line 2", progress: 40, assignedWorker: "Neha Singh", status: "Running" },
+  { taskName: "Clutch Assembly", line: "Line 1", progress: 75, assignedWorker: "Aman Verma", status: "Running" },
+  { taskName: "Gear Box Assembly", line: "Line 3", progress: 10, assignedWorker: "Iqbal Khan", status: "Queued" },
+  { taskName: "Engine Mount", line: "Line 2", progress: 30, assignedWorker: "Priya Nair", status: "Running" },
 ];
 
 export const recentActivities: RecentActivity[] = [
   {
-    title: "Inventory added",
-    description: "12 Brake Pad Sets added to Rack A1.",
-    time: "09:32",
+    title: "New stock added",
+    description: "Brake Pad Kit",
+    time: "10:30 AM",
     type: "inventory",
   },
   {
+    title: "Work order created",
+    description: "WO-1258",
+    time: "09:45 AM",
+    type: "task",
+  },
+  {
     title: "Production completed",
-    description: "Clutch cable kit packing finished for dispatch.",
-    time: "10:12",
+    description: "Clutch Assembly",
+    time: "09:30 AM",
     type: "production",
   },
   {
     title: "Low stock alert",
-    description: "Sensor Bracket moved to critical level.",
-    time: "10:44",
+    description: "Oil Seal",
+    time: "09:15 AM",
     type: "alert",
   },
   {
-    title: "Task update",
-    description: "Line 1 assembly crossed 70% progress.",
-    time: "11:05",
+    title: "Task updated",
+    description: "Steering Assembly",
+    time: "09:00 AM",
     type: "task",
   },
 ];
 
 export const outputProgress = {
-  percentage: 76,
-  target: 420,
-  achieved: 318,
-  remaining: 102,
+  percentage: 78,
+  target: 1600,
+  achieved: 1250,
+  remaining: 350,
 };
-

@@ -3,7 +3,7 @@
 import { ClipboardPlus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { AppShell } from "@/components/app-shell";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { productionTasks as initialTasks } from "@/lib/mock-data";
 import { formatDateTime, titleCase } from "@/lib/format";
@@ -60,7 +60,7 @@ export default function ProductionPage() {
   }
 
   return (
-    <AppShell>
+    <DashboardShell>
       <PageHeader
         action={
           <Button onClick={() => setShowForm(true)}>
@@ -166,7 +166,7 @@ export default function ProductionPage() {
           </Card>
         </div>
       ) : null}
-    </AppShell>
+    </DashboardShell>
   );
 }
 
@@ -201,4 +201,3 @@ function Select({
     </label>
   );
 }
-

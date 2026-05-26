@@ -1,4 +1,5 @@
 import { Bell, Boxes, CheckCircle2, ClipboardList } from "lucide-react";
+import Link from "next/link";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import type { RecentActivity } from "@/types/dashboard";
@@ -18,7 +19,7 @@ export function ActivityTimeline({ items }: Readonly<{ items: RecentActivity[] }
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#19C93B]">Timeline</p>
           <h2 className="mt-1 text-xl font-semibold text-[#111827]">Recent Activity</h2>
         </div>
-        <span className="text-sm font-medium text-[#6B7280]">Last 4 operational events</span>
+        <Link className="text-sm font-semibold text-[#19C93B]" href="/notifications">View all</Link>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -41,4 +42,3 @@ export function ActivityTimeline({ items }: Readonly<{ items: RecentActivity[] }
     </DashboardCard>
   );
 }
-

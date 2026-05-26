@@ -1,6 +1,7 @@
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { cn } from "@/lib/utils";
 import type { ActiveProductionTask, LowStockItem } from "@/types/dashboard";
+import Link from "next/link";
 
 const stockStatus = {
   Low: "bg-amber-50 text-amber-700",
@@ -18,7 +19,7 @@ const taskStatus = {
 export function LowStockTable({ items }: Readonly<{ items: LowStockItem[] }>) {
   return (
     <DashboardCard className="lg:col-span-6" delay={0.34}>
-      <SectionHeader title="Low Stock Table" subtitle="Items needing procurement attention" />
+      <SectionHeader href="/inventory" title="Top Low Stock Items" />
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[620px] text-left text-sm">
           <thead>
@@ -54,7 +55,7 @@ export function LowStockTable({ items }: Readonly<{ items: LowStockItem[] }>) {
 export function ActiveTasksTable({ tasks }: Readonly<{ tasks: ActiveProductionTask[] }>) {
   return (
     <DashboardCard className="lg:col-span-6" delay={0.38}>
-      <SectionHeader title="Active Production Tasks" subtitle="Line-wise task execution status" />
+      <SectionHeader href="/production" title="Active Production Tasks" />
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
@@ -97,12 +98,11 @@ export function ActiveTasksTable({ tasks }: Readonly<{ tasks: ActiveProductionTa
   );
 }
 
-function SectionHeader({ title, subtitle }: Readonly<{ title: string; subtitle: string }>) {
+function SectionHeader({ href, title }: Readonly<{ href: string; title: string }>) {
   return (
-    <div>
+    <div className="flex items-center justify-between">
       <h2 className="text-xl font-semibold text-[#111827]">{title}</h2>
-      <p className="mt-1 text-sm text-[#6B7280]">{subtitle}</p>
+      <Link className="text-sm font-semibold text-[#19C93B]" href={href}>View all</Link>
     </div>
   );
 }
-

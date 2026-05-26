@@ -1,7 +1,7 @@
 import { AlertTriangle, Bell, CheckCircle2, ClipboardList } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { AppShell } from "@/components/app-shell";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { getNotifications } from "@/lib/api";
 import { formatDateTime, titleCase } from "@/lib/format";
@@ -23,7 +23,7 @@ export default async function NotificationsPage() {
   const notifications = await getNotifications();
 
   return (
-    <AppShell>
+    <DashboardShell>
       <PageHeader
         description="Operational alerts for low stock, production delays, and task status changes."
         title="Notifications"
@@ -59,6 +59,6 @@ export default async function NotificationsPage() {
           ))}
         </div>
       </Card>
-    </AppShell>
+    </DashboardShell>
   );
 }

@@ -7,149 +7,267 @@ import {
   ChevronDown,
   ClipboardList,
   Download,
-  Factory,
+  Folder,
+  Home,
   LayoutDashboard,
   Menu,
+  PackageCheck,
   Search,
   Settings,
-  ShieldCheck,
+  Shield,
   Users,
   Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
+import type { FormEvent, ReactNode } from "react";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-const navigation = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+const operations = [
+  { href: "/production", label: "Production", icon: PackageCheck },
+  { href: "/production", label: "Work Orders", icon: ClipboardList },
   { href: "/inventory", label: "Inventory", icon: Boxes },
-  { href: "/production", label: "Production", icon: ClipboardList },
-  { href: "/notifications", label: "Alerts", icon: Bell },
-  { href: "/dashboard", label: "Workers", icon: Users },
-  { href: "/dashboard", label: "Maintenance", icon: Wrench },
+  { href: "/production", label: "Quality", icon: Shield },
+  { href: "/production", label: "Maintenance", icon: Wrench },
+];
+
+const management = [
+  { href: "/dashboard", label: "Reports", icon: LayoutDashboard },
+  { href: "/notifications", label: "Alerts", icon: Bell, count: 5 },
+  { href: "/dashboard", label: "Calendar", icon: CalendarDays },
+  { href: "/dashboard", label: "Documents", icon: Folder },
+];
+
+const system = [
+  { href: "/dashboard", label: "Users", icon: Users },
   { href: "/dashboard", label: "Settings", icon: Settings },
 ];
 
 export function DashboardShell({ children }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname() ?? "";
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [date, setDate] = useState("2026-05-26");
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = String(formData.get("query") ?? "").trim().toLowerCase();
+    if (!query) return;
+    if (query.includes("stock") || query.includes("sku") || query.includes("inventory")) {
+      router.push(`/inventory?search=${encodeURIComponent(query)}`);
+      return;
+    }
+    if (query.includes("task") || query.includes("line") || query.includes("production")) {
+      router.push(`/production?search=${encodeURIComponent(query)}`);
+      return;
+    }
+    router.push(`/dashboard?search=${encodeURIComponent(query)}`);
+  }
+
+  async function exportReport() {
+    const response = await fetch("/api/reports/export");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "naptech-factory-report.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function logout() {
+    window.localStorage.removeItem("naptech_demo_session");
+    router.push("/login");
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F9FB] text-[#111827]">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-[#020B14] text-white transition-transform duration-300 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-[292px] flex-col border-r border-white/10 bg-[#020B14] text-white transition-transform duration-300 lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-20 items-center justify-between px-5">
+        <div className="flex h-24 items-center justify-between px-5">
           <Link className="flex items-center gap-3" href="/dashboard">
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19C93B] text-[#07111A] shadow-[0_0_32px_rgba(25,201,59,0.35)]">
-              <Factory size={25} />
-              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[#8BFF4D]" />
+            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-[#8BFF4D]/60 bg-[#19C93B]/15 text-[#8BFF4D] shadow-[0_0_30px_rgba(25,201,59,0.28)]">
+              <span className="text-lg font-black italic">NP</span>
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#8BFF4D]">NAPTECH</p>
-              <p className="text-sm text-slate-400">Factory OS</p>
+              <p className="text-2xl font-semibold tracking-normal text-[#19C93B]">NAPTECH</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white">Factory OS</p>
             </div>
           </Link>
-          <button className="rounded-xl p-2 text-slate-400 lg:hidden" onClick={() => setOpen(false)} type="button">
+          <button className="rounded-full border border-white/20 p-2 text-slate-400 lg:hidden" onClick={() => setOpen(false)} type="button">
             <X size={18} />
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-4">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const active = pathname === item.href;
-            return (
-              <Link
-                className={cn(
-                  "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white",
-                  active && "bg-[#19C93B]/15 text-white shadow-[inset_0_0_0_1px_rgba(25,201,59,0.18)]",
-                )}
-                href={item.href}
-                key={`${item.label}-${item.href}`}
-                onClick={() => setOpen(false)}
-              >
-                <span
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition group-hover:text-[#8BFF4D]",
-                    active && "bg-[#19C93B] text-[#07111A]",
-                  )}
-                >
-                  <Icon size={18} />
-                </span>
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-4 pb-4">
+          <NavLink active={pathname === "/dashboard"} href="/dashboard" icon={Home} label="Dashboard" onClick={() => setOpen(false)} />
+          <NavGroup items={operations} label="Operations" pathname={pathname} setOpen={setOpen} />
+          <NavGroup items={management} label="Management" pathname={pathname} setOpen={setOpen} />
+          <NavGroup items={system} label="System" pathname={pathname} setOpen={setOpen} />
         </nav>
 
-        <div className="m-4 rounded-3xl border border-[#19C93B]/20 bg-[#07111A] p-4 shadow-[0_0_40px_rgba(25,201,59,0.08)]">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#19C93B]/15 text-[#8BFF4D]">
-            <ShieldCheck size={20} />
+        <div className="m-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="flex items-center gap-3">
+            <div className="relative grid h-11 w-11 place-items-center rounded-full bg-[#19C93B] text-sm font-bold text-white">
+              A
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#020B14] bg-[#8BFF4D]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-white">Admin User</p>
+              <p className="text-xs text-slate-400">Super Admin</p>
+            </div>
+            <button onClick={logout} type="button">
+              <ChevronDown size={16} />
+            </button>
           </div>
-          <p className="text-sm font-semibold">Plant health: Stable</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">All critical lines are monitored in real time.</p>
+          <div className="mt-8 flex items-center justify-between text-xs text-slate-500">
+            <span>© 2026 Naptech</span>
+            <span>v1.0.0</span>
+          </div>
         </div>
       </aside>
 
-      <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-[#F7F9FB]/85 px-4 py-4 backdrop-blur-xl lg:px-8">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex items-center gap-3">
+      <div className="lg:pl-[292px]">
+        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 px-4 py-4 backdrop-blur-xl lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <button
-                className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 shadow-sm lg:hidden"
+                className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm lg:hidden"
                 onClick={() => setOpen(true)}
                 type="button"
               >
                 <Menu size={20} />
               </button>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#19C93B]">
-                  Automobile Manufacturing
-                </p>
-                <h1 className="mt-1 text-2xl font-semibold tracking-normal text-[#111827] md:text-3xl">
-                  Factory Operations Command
-                </h1>
-              </div>
+              <form className="hidden h-12 w-[360px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm md:flex" onSubmit={handleSearch}>
+                <Search size={18} className="text-slate-500" />
+                <input className="w-full bg-transparent text-sm outline-none" name="query" placeholder="Search anything..." />
+                <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">⌘K</span>
+              </form>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="flex h-11 min-w-[240px] flex-1 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 shadow-sm xl:w-80 xl:flex-none">
-                <Search size={18} className="text-slate-400" />
-                <input className="w-full bg-transparent text-sm outline-none" placeholder="Search SKU, task, worker" />
-              </label>
-              <button className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                <CalendarDays size={17} />
-                Today
+            <div className="flex items-center gap-3">
+              <button className="grid h-10 w-10 place-items-center rounded-xl text-slate-700 transition hover:bg-slate-100" type="button">
+                ☼
               </button>
-              <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <Link className="relative grid h-10 w-10 place-items-center rounded-xl text-slate-700 transition hover:bg-slate-100" href="/notifications">
                 <Bell size={18} />
-                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#19C93B]" />
-              </button>
-              <button className="flex h-11 items-center gap-2 rounded-2xl bg-[#07111A] px-4 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(7,17,26,0.18)] transition hover:-translate-y-0.5">
-                <Download size={17} />
-                Export
-              </button>
-              <button className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 shadow-sm">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#19C93B] text-xs font-bold text-[#07111A]">
-                  PG
-                </span>
-                <span className="hidden sm:block">Priyansh</span>
-                <ChevronDown size={16} className="text-slate-400" />
+                <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-[#19C93B] text-[10px] font-bold text-white">5</span>
+              </Link>
+              <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#19C93B]/40 bg-[#19C93B]/10 text-[#19C93B]">
+                NP
+              </div>
+              <button className="flex items-center gap-2 text-sm font-semibold text-[#087B25]" onClick={() => setProfileOpen((value) => !value)} type="button">
+                NAPTECH
+                <ChevronDown size={16} />
               </button>
             </div>
           </div>
+
+          <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-normal text-[#111827]">Welcome back, Admin! 👋</h1>
+              <p className="mt-1 text-sm text-[#6B7280]">Here&apos;s what&apos;s happening in your factory today.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm">
+                <CalendarDays size={17} />
+                <input className="bg-transparent outline-none" onChange={(event) => setDate(event.target.value)} type="date" value={date} />
+              </label>
+              <button className="flex h-11 items-center gap-2 rounded-xl bg-[#19C93B] px-5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(25,201,59,0.25)] transition hover:-translate-y-0.5" onClick={exportReport} type="button">
+                <Download size={17} />
+                Export Report
+              </button>
+            </div>
+          </div>
+
+          {profileOpen ? (
+            <div className="absolute right-8 top-16 z-50 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+              <button className="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50" onClick={() => router.push("/dashboard")} type="button">
+                Profile
+              </button>
+              <button className="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50" onClick={logout} type="button">
+                Logout
+              </button>
+            </div>
+          ) : null}
         </header>
 
         <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
+  );
+}
+
+function NavGroup({
+  items,
+  label,
+  pathname,
+  setOpen,
+}: Readonly<{
+  items: Array<{ href: string; label: string; icon: LucideIcon; count?: number }>;
+  label: string;
+  pathname: string;
+  setOpen: (open: boolean) => void;
+}>) {
+  return (
+    <div className="mt-7">
+      <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <div className="space-y-1">
+        {items.map((item) => (
+          <NavLink
+            active={pathname === item.href && item.label !== "Work Orders" && item.label !== "Quality" && item.label !== "Maintenance"}
+            count={item.count}
+            href={item.href}
+            icon={item.icon}
+            key={`${label}-${item.label}`}
+            label={item.label}
+            onClick={() => setOpen(false)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NavLink({
+  active,
+  count,
+  href,
+  icon: Icon,
+  label,
+  onClick,
+}: Readonly<{
+  active: boolean;
+  count?: number;
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+}>) {
+  return (
+    <Link
+      className={cn(
+        "group flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white",
+        active && "bg-[#19C93B] text-white shadow-[0_0_24px_rgba(25,201,59,0.32)]",
+      )}
+      href={href}
+      onClick={onClick}
+    >
+      <span className="flex items-center gap-3">
+        <Icon size={19} />
+        {label}
+      </span>
+      {count ? <span className="grid h-7 w-7 place-items-center rounded-full bg-[#19C93B] text-xs font-bold text-white">{count}</span> : <ChevronDown className="rotate-[-90deg] text-slate-500" size={15} />}
+    </Link>
   );
 }

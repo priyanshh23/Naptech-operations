@@ -1,4 +1,5 @@
 import { AlertTriangle, Clock3, Wrench } from "lucide-react";
+import Link from "next/link";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { cn } from "@/lib/utils";
@@ -18,9 +19,7 @@ export function AlertsPanel({ alerts }: Readonly<{ alerts: AlertItem[] }>) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#19C93B]">Alerts</p>
           <h2 className="mt-1 text-xl font-semibold text-[#111827]">Recent Alerts</h2>
         </div>
-        <span className="rounded-full bg-[#19C93B]/10 px-3 py-1 text-xs font-semibold text-[#087B25]">
-          Live
-        </span>
+        <Link className="text-sm font-semibold text-[#19C93B]" href="/notifications">View all</Link>
       </div>
 
       <div className="space-y-3">
@@ -49,4 +48,3 @@ export function AlertsPanel({ alerts }: Readonly<{ alerts: AlertItem[] }>) {
     </DashboardCard>
   );
 }
-
