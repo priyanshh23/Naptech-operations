@@ -5,6 +5,7 @@ import {
   Area,
   AreaChart,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
@@ -47,7 +48,10 @@ export function KpiCard({ metric, index }: Readonly<{ metric: KpiMetric; index: 
                   <stop offset="95%" stopColor={accent.stroke} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <Tooltip content={<MiniTooltip />} cursor={false} />
               <Area
+                activeDot={{ r: 3 }}
+                animationDuration={600}
                 dataKey="value"
                 fill={`url(#kpiGradient-${index})`}
                 stroke={accent.stroke}
@@ -59,5 +63,21 @@ export function KpiCard({ metric, index }: Readonly<{ metric: KpiMetric; index: 
         </div>
       </div>
     </DashboardCard>
+  );
+}
+
+function MiniTooltip({
+  active,
+  payload,
+}: Readonly<{
+  active?: boolean;
+  payload?: Array<{ value?: string | number }>;
+}>) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-950 shadow-lg dark:border-white/10 dark:bg-[#07111A] dark:text-white">
+      {payload[0]?.value}
+    </div>
   );
 }

@@ -17,30 +17,37 @@ import Link from "next/link";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import type { InventoryCategory, ProductionPoint } from "@/types/dashboard";
 
-export function InventoryOverview({ data }: Readonly<{ data: InventoryCategory[] }>) {
+export function InventoryOverview({ data, totalBalance }: Readonly<{ data: InventoryCategory[]; totalBalance: number }>) {
   return (
     <DashboardCard className="overflow-hidden lg:col-span-5" delay={0.18}>
-      <PanelTitle href="/inventory" title="Inventory Overview" />
-      <div className="mt-4 grid gap-4 2xl:grid-cols-[210px_1fr]">
+      <PanelTitle href="/inventory-logs" title="Inventory Overview" />
+      <div className="mt-4 grid gap-4 xl:grid-cols-[240px_1fr]">
         <div className="relative h-52 min-w-0">
           <ResponsiveContainer height="100%" width="100%">
             <PieChart>
-              <Pie data={data} dataKey="value" innerRadius={58} outerRadius={84} paddingAngle={4}>
+              <Pie
+                animationDuration={650}
+                data={data}
+                dataKey="value"
+                innerRadius={58}
+                outerRadius={84}
+                paddingAngle={4}
+              >
                 {data.map((entry) => (
                   <Cell fill={entry.color} key={entry.name} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={<ChartTooltip suffix="%" />} cursor={false} wrapperStyle={{ outline: "none" }} />
             </PieChart>
           </ResponsiveContainer>
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
             <div className="text-center">
-              <p className="text-xs text-[#6B7280]">Total Items</p>
-              <p className="text-xl font-semibold text-[#111827]">2,458</p>
+              <p className="text-xs text-[#6B7280]">Total Balance</p>
+              <p className="text-lg font-semibold text-[#111827] dark:text-white">{totalBalance.toLocaleString("en-IN")}</p>
             </div>
           </div>
         </div>
-        <div className="grid min-w-0 gap-2 self-center sm:grid-cols-2 2xl:grid-cols-1">
+        <div className="grid min-w-0 gap-2 self-center sm:grid-cols-2 xl:grid-cols-1">
           {data.map((item) => (
             <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2" key={item.name}>
               <div className="flex min-w-0 items-center gap-2">
@@ -48,7 +55,7 @@ export function InventoryOverview({ data }: Readonly<{ data: InventoryCategory[]
                 <span className="truncate text-xs font-semibold text-[#111827]">{item.name}</span>
               </div>
               <span className="shrink-0 text-xs font-semibold text-[#6B7280]">
-                {Math.round((item.value / 100) * 2458).toLocaleString("en-IN")} ({item.value}%)
+                {Math.round((item.value / 100) * totalBalance).toLocaleString("en-IN")} ({item.value}%)
               </span>
             </div>
           ))}
@@ -67,21 +74,37 @@ export function ProductionOverview({ data }: Readonly<{ data: ProductionPoint[] 
           <AreaChart data={data}>
             <defs>
               <linearGradient id="plannedGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="#07111A" stopOpacity={0.18} />
-                <stop offset="95%" stopColor="#07111A" stopOpacity={0} />
+                <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.26} />
+                <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0.02} />
               </linearGradient>
               <linearGradient id="completedGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="#19C93B" stopOpacity={0.32} />
-                <stop offset="95%" stopColor="#19C93B" stopOpacity={0} />
+                <stop offset="5%" stopColor="#A3FF12" stopOpacity={0.28} />
+                <stop offset="95%" stopColor="#19C93B" stopOpacity={0.04} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="#E5E7EB" strokeDasharray="4 6" vertical={false} />
             <XAxis axisLine={false} dataKey="shift" tick={{ fill: "#6B7280", fontSize: 12 }} tickLine={false} />
             <YAxis axisLine={false} tick={{ fill: "#6B7280", fontSize: 12 }} tickLine={false} />
-            <Tooltip />
-            <Area dataKey="planned" fill="url(#plannedGradient)" stroke="#07111A" strokeWidth={2} type="monotone" />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: "#38BDF8", strokeDasharray: "4 4" }} />
             <Area
+              activeDot={{ fill: "#38BDF8", r: 5, stroke: "#E0F2FE", strokeWidth: 2 }}
+              animationBegin={120}
+              animationDuration={900}
+              animationEasing="ease-out"
+              dataKey="planned"
+              dot={false}
+              fill="url(#plannedGradient)"
+              stroke="#38BDF8"
+              strokeWidth={3}
+              type="monotone"
+            />
+            <Area
+              activeDot={{ fill: "#19C93B", r: 5, stroke: "#ECFCCB", strokeWidth: 2 }}
+              animationBegin={260}
+              animationDuration={1050}
+              animationEasing="ease-out"
               dataKey="completed"
+              dot={false}
               fill="url(#completedGradient)"
               stroke="#19C93B"
               strokeWidth={3}
@@ -91,6 +114,44 @@ export function ProductionOverview({ data }: Readonly<{ data: ProductionPoint[] 
         </ResponsiveContainer>
       </div>
     </DashboardCard>
+  );
+}
+
+type TooltipPayload = {
+  color?: string;
+  name?: string | number;
+  value?: string | number;
+};
+
+function ChartTooltip({
+  active,
+  label,
+  payload,
+  suffix = "",
+}: Readonly<{
+  active?: boolean;
+  label?: string | number;
+  payload?: TooltipPayload[];
+  suffix?: string;
+}>) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/95 px-3 py-2 text-xs shadow-xl backdrop-blur dark:border-white/10 dark:bg-[#07111A]/95">
+      {label ? <p className="mb-1 font-semibold text-slate-900 dark:text-white">{label}</p> : null}
+      <div className="space-y-1">
+        {payload.map((item) => (
+          <div className="flex items-center gap-2" key={`${item.name}-${item.value}`}>
+            <span className="h-2 w-2 rounded-full" style={{ background: item.color ?? "#19C93B" }} />
+            <span className="text-slate-500 dark:text-slate-300">{item.name}</span>
+            <span className="font-semibold text-slate-950 dark:text-white">
+              {item.value}
+              {suffix}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

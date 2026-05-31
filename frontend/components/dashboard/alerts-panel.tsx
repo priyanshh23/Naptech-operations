@@ -23,7 +23,7 @@ export function AlertsPanel({ alerts }: Readonly<{ alerts: AlertItem[] }>) {
       </div>
 
       <div className="space-y-3">
-        {alerts.map((alert) => {
+        {alerts.length ? alerts.map((alert) => {
           const meta = alertMeta[alert.type];
           const Icon = meta.icon;
           return (
@@ -43,7 +43,11 @@ export function AlertsPanel({ alerts }: Readonly<{ alerts: AlertItem[] }>) {
               </div>
             </div>
           );
-        })}
+        }) : (
+          <div className="rounded-2xl bg-slate-50 p-4 text-sm text-[#6B7280]">
+            No live alerts right now.
+          </div>
+        )}
       </div>
     </DashboardCard>
   );

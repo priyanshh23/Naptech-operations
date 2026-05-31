@@ -31,9 +31,10 @@ def get_current_user(
 
 def require_roles(*roles: UserRole) -> Callable:
     def dependency(current_user: User = Depends(get_current_user)) -> User:
-        if current_user.role not in roles:
+        role_value = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
+        allowed = {role.value for role in roles}
+        if role_value not in allowed:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
         return current_user
 
     return dependency
-

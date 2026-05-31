@@ -15,8 +15,10 @@ dist/
 .env.local
 .env.*.local
 
+# Local databases
+*.db
+
 # OS and editors
 .DS_Store
 .vscode/
 .idea/
-

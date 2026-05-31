@@ -9,7 +9,11 @@ from app.database.base import Base
 
 class UserRole(str, Enum):
     ADMIN = "admin"
+    MANAGER = "manager"
     SUPERVISOR = "supervisor"
+    INVENTORY = "inventory"
+    PRODUCTION = "production"
+    QUALITY = "quality"
     WORKER = "worker"
 
 
@@ -24,4 +28,3 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
     inventory_logs = relationship("InventoryLog", back_populates="updated_by_user")
-

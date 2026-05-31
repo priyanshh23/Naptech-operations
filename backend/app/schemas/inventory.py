@@ -1,46 +1,84 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.models.inventory_log import InventoryActionType
+
+class InventoryEntryBase(BaseModel):
+    date: date
+    part_name: str = Field(min_length=1, max_length=180)
+    schedule_quantity: int = Field(default=0, ge=0)
+    in_quantity: int = Field(default=0, ge=0)
+    out_quantity: int = Field(default=0, ge=0)
+    rejection_quantity: int = Field(default=0, ge=0)
+    remarks: Optional[str] = Field(default=None, max_length=500)
 
 
-class InventoryBase(BaseModel):
-    product_name: str = Field(min_length=1, max_length=180)
-    sku_code: str = Field(min_length=1, max_length=80)
-    quantity: int = Field(ge=0)
-    minimum_stock: int = Field(ge=0)
-    location: str = Field(min_length=1, max_length=120)
-
-
-class InventoryCreate(InventoryBase):
+class InventoryEntryCreate(InventoryEntryBase):
     pass
 
 
-class InventoryUpdate(BaseModel):
-    product_name: Optional[str] = Field(default=None, min_length=1, max_length=180)
-    sku_code: Optional[str] = Field(default=None, min_length=1, max_length=80)
-    quantity: Optional[int] = Field(default=None, ge=0)
-    minimum_stock: Optional[int] = Field(default=None, ge=0)
-    location: Optional[str] = Field(default=None, min_length=1, max_length=120)
+class InventoryEntryUpdate(BaseModel):
+    date: Optional[date] = None
+    part_name: Optional[str] = Field(default=None, min_length=1, max_length=180)
+    schedule_quantity: Optional[int] = Field(default=None, ge=0)
+    in_quantity: Optional[int] = Field(default=None, ge=0)
+    out_quantity: Optional[int] = Field(default=None, ge=0)
+    rejection_quantity: Optional[int] = Field(default=None, ge=0)
+    remarks: Optional[str] = Field(default=None, max_length=500)
 
 
-class InventoryResponse(InventoryBase):
+class InventoryEntryResponse(InventoryEntryBase):
     id: int
+    balance_quantity: int
+    created_by: str
     created_at: datetime
-    updated_at: datetime
-    is_low_stock: bool
 
     model_config = {"from_attributes": True}
 
 
-class InventoryLogResponse(BaseModel):
-    id: int
-    inventory_id: Optional[int]
-    action_type: InventoryActionType
-    quantity_changed: int
-    updated_by: Optional[int]
-    timestamp: datetime
+class InventoryEntryListResponse(BaseModel):
+    items: list[InventoryEntryResponse]
+    total: int
 
-    model_config = {"from_attributes": True}
+
+class InventoryLogListResponse(BaseModel):
+    items: list[InventoryEntryResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+class InventoryBalancePreview(BaseModel):
+    part_name: str
+    previous_balance: int
+    projected_balance: int
+
+
+class InventoryPartBalance(BaseModel):
+    part_name: str
+    balance_quantity: int
+    total_in_quantity: int
+    total_out_quantity: int
+    total_rejection_quantity: int
+    latest_entry_date: date
+    is_low_inventory: bool
+
+
+class InventoryMovementPoint(BaseModel):
+    label: str
+    in_quantity: int
+    out_quantity: int
+
+
+class InventorySummaryResponse(BaseModel):
+    total_inventory: int
+    total_in_quantity: int
+    total_out_quantity: int
+    total_rejections: int
+    low_inventory_count: int
+    low_inventory_threshold: int
+    low_inventory_items: list[InventoryPartBalance]
+    part_balances: list[InventoryPartBalance]
+    movement_series: list[InventoryMovementPoint]
+    recent_entries: list[InventoryEntryResponse]

@@ -13,6 +13,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleLoginRequest(BaseModel):
+    credential: str
+
+
 class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
@@ -33,4 +37,3 @@ class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
-

@@ -1,69 +1,110 @@
+from datetime import date
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.database.session import get_db
 from app.middleware.auth import get_current_user, require_roles
 from app.models.user import User, UserRole
-from app.schemas.inventory import InventoryCreate, InventoryLogResponse, InventoryResponse, InventoryUpdate
+from app.schemas.inventory import (
+    InventoryBalancePreview,
+    InventoryEntryCreate,
+    InventoryEntryListResponse,
+    InventoryEntryResponse,
+    InventoryEntryUpdate,
+    InventoryLogListResponse,
+    InventorySummaryResponse,
+)
 from app.services.inventory_service import (
-    create_inventory_item,
-    delete_inventory_item,
-    list_inventory,
+    create_inventory_entry,
+    delete_inventory_entry,
+    get_inventory_balance_preview,
+    get_inventory_summary,
+    list_inventory_entries,
     list_inventory_logs,
-    update_inventory_item,
+    update_inventory_entry,
 )
 
-router = APIRouter(prefix="/inventory", tags=["inventory"])
+router = APIRouter(tags=["inventory"])
+
+INVENTORY_EDIT_ROLES = (UserRole.ADMIN, UserRole.MANAGER, UserRole.SUPERVISOR, UserRole.INVENTORY)
+MANAGER_DELETE_ROLES = (UserRole.ADMIN, UserRole.MANAGER)
 
 
-@router.get("", response_model=list[InventoryResponse])
-def get_inventory(
+@router.get("/inventory-entry", response_model=InventoryEntryListResponse)
+def get_inventory_entries(
     search: Optional[str] = Query(default=None),
+    part_name: Optional[str] = Query(default=None),
+    date_from: Optional[date] = Query(default=None),
+    date_to: Optional[date] = Query(default=None),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> list:
-    items = list_inventory(db, search)
-    for item in items:
-        item.is_low_stock = item.quantity <= item.minimum_stock
-    return items
+) -> InventoryEntryListResponse:
+    items, total = list_inventory_entries(db, search, part_name, date_from, date_to)
+    return InventoryEntryListResponse(items=items, total=total)
 
 
-@router.post("", response_model=InventoryResponse, status_code=status.HTTP_201_CREATED)
-def create_inventory(
-    payload: InventoryCreate,
+@router.post("/inventory-entry", response_model=InventoryEntryResponse, status_code=status.HTTP_201_CREATED)
+def post_inventory_entry(
+    payload: InventoryEntryCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.SUPERVISOR)),
-):
-    item = create_inventory_item(db, payload, current_user)
-    item.is_low_stock = item.quantity <= item.minimum_stock
-    return item
+    current_user: User = Depends(require_roles(*INVENTORY_EDIT_ROLES)),
+) -> InventoryEntryResponse:
+    return create_inventory_entry(db, payload, current_user)
 
 
-@router.put("/{inventory_id}", response_model=InventoryResponse)
-def update_inventory(
-    inventory_id: int,
-    payload: InventoryUpdate,
+@router.put("/inventory-entry/{entry_id}", response_model=InventoryEntryResponse)
+def put_inventory_entry(
+    entry_id: int,
+    payload: InventoryEntryUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.SUPERVISOR)),
-):
-    item = update_inventory_item(db, inventory_id, payload, current_user)
-    item.is_low_stock = item.quantity <= item.minimum_stock
-    return item
+    _: User = Depends(require_roles(*INVENTORY_EDIT_ROLES)),
+) -> InventoryEntryResponse:
+    return update_inventory_entry(db, entry_id, payload)
 
 
-@router.delete("/{inventory_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_inventory(
-    inventory_id: int,
+@router.delete("/inventory-entry/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_inventory_entry(
+    entry_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.SUPERVISOR)),
+    _: User = Depends(require_roles(*MANAGER_DELETE_ROLES)),
 ) -> None:
-    delete_inventory_item(db, inventory_id, current_user)
+    delete_inventory_entry(db, entry_id)
 
 
-@router.get("/logs", response_model=list[InventoryLogResponse])
-def get_inventory_logs(
+@router.get("/inventory-entry/preview", response_model=InventoryBalancePreview)
+def inventory_entry_preview(
+    part_name: str = Query(min_length=1),
+    in_quantity: int = Query(default=0, ge=0),
+    out_quantity: int = Query(default=0, ge=0),
+    rejection_quantity: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(UserRole.ADMIN, UserRole.SUPERVISOR)),
-) -> list:
-    return list_inventory_logs(db)
+    _: User = Depends(get_current_user),
+) -> InventoryBalancePreview:
+    return get_inventory_balance_preview(db, part_name, in_quantity, out_quantity, rejection_quantity)
+
+
+@router.get("/inventory-summary", response_model=InventorySummaryResponse)
+def inventory_summary(
+    date_from: Optional[date] = Query(default=None),
+    date_to: Optional[date] = Query(default=None),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+) -> InventorySummaryResponse:
+    return get_inventory_summary(db, date_from, date_to)
+
+
+@router.get("/inventory-logs", response_model=InventoryLogListResponse)
+def inventory_logs(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=100),
+    search: Optional[str] = Query(default=None),
+    part_name: Optional[str] = Query(default=None),
+    date_from: Optional[date] = Query(default=None),
+    date_to: Optional[date] = Query(default=None),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+) -> InventoryLogListResponse:
+    items, total = list_inventory_logs(db, page, page_size, search, part_name, date_from, date_to)
+    return InventoryLogListResponse(items=items, total=total, page=page, page_size=page_size)

@@ -28,6 +28,97 @@ body {
 
 .dark body {
   background: #07111a;
+  color: #e5edf7;
+}
+
+.dark .bg-white {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.075) !important;
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-border {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .text-slate-950,
+.dark .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: #dbe7f3 !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-muted-foreground {
+  color: #9fb0c5 !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: rgba(255, 255, 255, 0.065);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #8fa0b6;
+}
+
+.dark option {
+  background-color: #07111a;
+  color: #f8fafc;
+}
+
+.dark table {
+  color: #dbe7f3;
+}
+
+.dark thead tr {
+  color: #9fb0c5;
+}
+
+.dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+.dark .text-\[\#111827\] {
+  color: #f8fafc !important;
+}
+
+.dark .text-\[\#6B7280\] {
+  color: #aab8cb !important;
+}
+
+.dark .recharts-cartesian-axis-tick text,
+.dark .recharts-text,
+.dark .recharts-label,
+.dark .recharts-legend-item-text {
+  fill: #cbd5e1 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark .recharts-cartesian-grid line {
+  stroke: rgba(203, 213, 225, 0.22) !important;
+}
+
+.dark .recharts-tooltip-cursor {
+  stroke: rgba(56, 189, 248, 0.72) !important;
+}
+
+.dark .recharts-sector[stroke="#fff"],
+.dark .recharts-sector[stroke="#ffffff"] {
+  stroke: #07111a !important;
 }
 
 ::selection {

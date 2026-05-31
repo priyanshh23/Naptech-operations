@@ -1,4 +1,17 @@
-export type Role = "admin" | "supervisor" | "worker";
+export type Role = "admin" | "manager" | "supervisor" | "inventory" | "production" | "quality" | "worker";
+
+export type AuthUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role;
+};
+
+export type AuthResponse = {
+  access_token: string;
+  token_type: string;
+  user: AuthUser;
+};
 
 export type InventoryItem = {
   id: number;
@@ -21,6 +34,77 @@ export type InventoryLog = {
   timestamp: string;
 };
 
+export type InventoryEntry = {
+  id: number;
+  date: string;
+  part_name: string;
+  schedule_quantity: number;
+  in_quantity: number;
+  out_quantity: number;
+  rejection_quantity: number;
+  balance_quantity: number;
+  remarks: string | null;
+  created_by: string;
+  created_at: string;
+};
+
+export type InventoryEntryPayload = {
+  date: string;
+  part_name: string;
+  schedule_quantity: number;
+  in_quantity: number;
+  out_quantity: number;
+  rejection_quantity: number;
+  remarks?: string | null;
+};
+
+export type InventoryEntryListResponse = {
+  items: InventoryEntry[];
+  total: number;
+};
+
+export type InventoryLogListResponse = {
+  items: InventoryEntry[];
+  total: number;
+  page: number;
+  page_size: number;
+};
+
+export type InventoryBalancePreview = {
+  part_name: string;
+  previous_balance: number;
+  projected_balance: number;
+};
+
+export type InventoryPartBalance = {
+  part_name: string;
+  balance_quantity: number;
+  total_in_quantity: number;
+  total_out_quantity: number;
+  total_rejection_quantity: number;
+  latest_entry_date: string;
+  is_low_inventory: boolean;
+};
+
+export type InventoryMovementPoint = {
+  label: string;
+  in_quantity: number;
+  out_quantity: number;
+};
+
+export type InventorySummary = {
+  total_inventory: number;
+  total_in_quantity: number;
+  total_out_quantity: number;
+  total_rejections: number;
+  low_inventory_count: number;
+  low_inventory_threshold: number;
+  low_inventory_items: InventoryPartBalance[];
+  part_balances: InventoryPartBalance[];
+  movement_series: InventoryMovementPoint[];
+  recent_entries: InventoryEntry[];
+};
+
 export type TaskStatus = "pending" | "in_progress" | "delayed" | "completed";
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
 
@@ -36,6 +120,67 @@ export type ProductionTask = {
   created_at: string;
 };
 
+export type ProductionEntry = {
+  id: number;
+  date: string;
+  shift: string;
+  machine_number: string;
+  operator_name: string;
+  part_number: string;
+  part_name: string;
+  cycle_time_seconds: number;
+  target_per_hour: number;
+  daily_target: number;
+  actual_production: number;
+  efficiency_percent: number;
+  remarks: string | null;
+  created_by: string;
+  created_at: string;
+};
+
+export type ProductionEntryPayload = {
+  date: string;
+  shift: string;
+  machine_number: string;
+  operator_name: string;
+  part_number: string;
+  part_name: string;
+  cycle_time_seconds: number;
+  target_per_hour: number;
+  daily_target: number;
+  actual_production: number;
+  remarks?: string | null;
+};
+
+export type ProductionEntryListResponse = {
+  items: ProductionEntry[];
+  total: number;
+};
+
+export type MachineAnalyticsRow = {
+  machine_number: string;
+  daily_target: number;
+  actual_production: number;
+  efficiency_percent: number;
+  is_underperforming: boolean;
+};
+
+export type ProductionChartPoint = {
+  label: string;
+  target: number;
+  actual: number;
+};
+
+export type ProductionSummary = {
+  total_daily_production: number;
+  average_machine_efficiency: number;
+  best_performing_machine: string | null;
+  underperforming_machines: number;
+  production_vs_target: ProductionChartPoint[];
+  machine_wise_production: ProductionChartPoint[];
+  recent_entries: ProductionEntry[];
+};
+
 export type Notification = {
   id: number;
   message: string;
@@ -46,10 +191,56 @@ export type Notification = {
 
 export type DashboardSummary = {
   total_inventory: number;
+  total_in_quantity: number;
+  total_out_quantity: number;
+  total_rejections: number;
   low_stock_count: number;
   active_tasks: number;
   delayed_tasks: number;
   completed_tasks: number;
   production_summary: Record<TaskStatus, number>;
+  kpi_metrics: Array<{
+    label: string;
+    value: number;
+    trend: string;
+    trend_direction: "up" | "down";
+    sparkline: Array<{ value: number }>;
+  }>;
+  inventory_categories: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  movement_series: Array<{
+    shift: string;
+    planned: number;
+    completed: number;
+  }>;
+  alerts: Array<{
+    title: string;
+    description: string;
+    type: "low_stock" | "delay" | "maintenance";
+    time: string;
+  }>;
+  low_stock_items: Array<{
+    item_name: string;
+    sku: string;
+    current_stock: number;
+    minimum_stock: number;
+    status: "Low" | "Warning" | "Critical";
+  }>;
+  active_tasks_table: Array<{
+    task_name: string;
+    line: string;
+    progress: number;
+    assigned_worker: string;
+    status: "Running" | "Delayed" | "Queued" | "Review";
+  }>;
+  recent_activities: Array<{
+    title: string;
+    description: string;
+    time: string;
+    type: "inventory" | "production" | "alert" | "task";
+  }>;
+  updated_at: string;
 };
-

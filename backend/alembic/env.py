@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.database.base import Base
-from app.models import inventory, inventory_log, notification, production_task, user
+from app.models import inventory, inventory_entry, inventory_log, notification, production_task, user
 from app.utils.config import settings
 
 config = context.config
@@ -46,4 +46,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

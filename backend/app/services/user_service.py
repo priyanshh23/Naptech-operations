@@ -1,7 +1,8 @@
+from typing import Optional
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.models.user import User
 from app.schemas.auth import RegisterRequest
@@ -31,6 +32,21 @@ def create_user(db: Session, payload: RegisterRequest) -> User:
 
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     user = get_user_by_email(db, email)
-    if not user or not verify_password(password, user.password):
+    if not user:
         return None
-    return user
+
+    try:
+        if verify_password(password, user.password):
+            return user
+    except Exception:
+        # Keep auth stable even if an old row has a non-standard hash format.
+        pass
+
+    # Self-heal legacy/plain-text records by hashing on first valid login.
+    if user.password == password:
+        user.password = hash_password(password)
+        db.commit()
+        db.refresh(user)
+        return user
+
+    return None

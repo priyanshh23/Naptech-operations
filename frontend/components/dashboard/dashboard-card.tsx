@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { memo } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function DashboardCard({
+function DashboardCardComponent({
   children,
   className,
   delay = 0,
@@ -22,9 +23,11 @@ export function DashboardCard({
         className,
       )}
       initial={{ opacity: 0, y: 14 }}
-      transition={{ delay, duration: 0.42, ease: "easeOut" }}
+      transition={{ delay, duration: 0.3, ease: "easeOut" }}
     >
       {children}
     </motion.section>
   );
 }
+
+export const DashboardCard = memo(DashboardCardComponent);

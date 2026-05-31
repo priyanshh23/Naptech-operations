@@ -14,6 +14,5 @@ router = APIRouter(prefix="/notifications", tags=["notifications"])
 def get_notifications(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> list:
+) -> list[NotificationResponse]:
     return list_notifications(db)
-

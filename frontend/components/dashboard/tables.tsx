@@ -19,7 +19,7 @@ const taskStatus = {
 export function LowStockTable({ items }: Readonly<{ items: LowStockItem[] }>) {
   return (
     <DashboardCard className="lg:col-span-6" delay={0.34}>
-      <SectionHeader href="/inventory" title="Top Low Stock Items" />
+      <SectionHeader href="/inventory-logs" title="Top Low Stock Items" />
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[620px] text-left text-sm">
           <thead>

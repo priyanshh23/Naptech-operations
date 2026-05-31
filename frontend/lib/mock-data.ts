@@ -153,6 +153,9 @@ export const notifications: Notification[] = [
 
 export const dashboardSummary: DashboardSummary = {
   total_inventory: inventoryItems.reduce((sum, item) => sum + item.quantity, 0),
+  total_in_quantity: 12,
+  total_out_quantity: 8,
+  total_rejections: 1,
   low_stock_count: inventoryItems.filter((item) => item.is_low_stock).length,
   active_tasks: productionTasks.filter((task) => task.status === "in_progress").length,
   delayed_tasks: productionTasks.filter((task) => task.status === "delayed").length,
@@ -163,5 +166,12 @@ export const dashboardSummary: DashboardSummary = {
     delayed: productionTasks.filter((task) => task.status === "delayed").length,
     completed: productionTasks.filter((task) => task.status === "completed").length,
   },
+  kpi_metrics: [],
+  inventory_categories: [],
+  movement_series: [],
+  alerts: [],
+  low_stock_items: [],
+  active_tasks_table: [],
+  recent_activities: [],
+  updated_at: new Date().toISOString(),
 };
-
