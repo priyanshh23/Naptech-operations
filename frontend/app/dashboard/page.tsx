@@ -79,14 +79,12 @@ export default function DashboardPage() {
     setError("");
 
     try {
-      const [response] = await Promise.all([
-        getDashboardSummary({
+      const response = await getDashboardSummary({
           date_from: dateFrom || undefined,
           date_to: dateTo || undefined,
-        }),
-        loadDepartmentRows(),
-      ]);
+      });
       setSummary(response);
+      void loadDepartmentRows();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to load live dashboard data.";
       setError(message);

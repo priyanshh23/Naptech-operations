@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, MobileRecordCard, PageHeader } from "@/components/ui";
 import { createInventoryEntry, deleteInventoryEntry, getInventoryEntries, getInventorySummary, updateInventoryEntry } from "@/lib/api";
 import { downloadExcel, printPdf } from "@/lib/export-utils";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -440,7 +440,51 @@ export default function InventoryEntryPage() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="mobile-record-list md:hidden">
+          {paginatedEntries.map((entry) => (
+            <MobileRecordCard
+              actions={
+                <>
+                  <button
+                    className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    onClick={() => startEdit(entry)}
+                    type="button"
+                  >
+                    <Pencil size={14} />
+                    Edit
+                  </button>
+                  {canDelete ? (
+                    <button
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      onClick={() => void handleDelete(entry)}
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+                  ) : null}
+                </>
+              }
+              badge={<Badge tone={entry.balance_quantity < (summary?.low_inventory_threshold ?? 1000) ? "warning" : "success"}>{entry.balance_quantity.toLocaleString("en-IN")}</Badge>}
+              key={entry.id}
+              rows={[
+                { label: "Schedule", value: entry.schedule_quantity.toLocaleString("en-IN") },
+                { label: "IN", value: entry.in_quantity.toLocaleString("en-IN") },
+                { label: "OUT", value: entry.out_quantity.toLocaleString("en-IN") },
+                { label: "Rejection", value: entry.rejection_quantity.toLocaleString("en-IN") },
+                { label: "Created By", value: entry.created_by },
+                { label: "Saved", value: formatDateTime(entry.created_at) },
+              ]}
+              subtitle={formatDate(entry.date)}
+              title={entry.part_name}
+            />
+          ))}
+          {!paginatedEntries.length ? (
+            <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">No inventory entries found for the current filters.</div>
+          ) : null}
+        </div>
+
+        <div className="table-scroll hidden md:block">
           <table className="data-table w-full min-w-[940px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase text-muted-foreground">

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { Button, Card } from "@/components/ui";
-import { forgotPassword, getDashboardSummary, googleLogin, login } from "@/lib/api";
+import { forgotPassword, googleLogin, login } from "@/lib/api";
 
 import { LoginInput } from "./login-input";
 
@@ -48,16 +48,7 @@ export function LoginForm() {
   useEffect(() => {
     const existingToken = window.localStorage.getItem("naptech_access_token");
     if (existingToken) {
-      void (async () => {
-        try {
-          await getDashboardSummary();
-          router.replace("/dashboard");
-        } catch {
-          window.localStorage.removeItem("naptech_access_token");
-          window.localStorage.removeItem("naptech_user");
-          window.localStorage.removeItem("naptech_demo_session");
-        }
-      })();
+      router.replace("/dashboard");
     }
 
     if (!googleClientId || document.getElementById("google-identity-script")) return;
@@ -96,7 +87,6 @@ export function LoginForm() {
       const response = await login(email, password);
       storeSession(response);
       router.replace("/dashboard");
-      router.refresh();
     } catch (error) {
       setIsLoading(false);
       const message = error instanceof Error ? error.message : "Login failed";
@@ -205,7 +195,6 @@ export function LoginForm() {
             const response = await googleLogin(googleResponse.access_token, "access_token");
             storeSession(response);
             router.replace("/dashboard");
-            router.refresh();
           } catch (error) {
             setIsGoogleLoading(false);
             const message = error instanceof Error ? error.message : "Google login failed.";

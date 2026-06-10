@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, MobileRecordCard, PageHeader } from "@/components/ui";
 import { createQualityRejection, deleteQualityRejection, getQualityRejections, updateQualityRejection } from "@/lib/api";
 import { downloadExcel, printPdf } from "@/lib/export-utils";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -305,7 +305,50 @@ export default function QualityPage() {
             ) : null}
           </label>
         </div>
-        <div className="overflow-x-auto">
+        <div className="mobile-record-list md:hidden">
+          {paginatedRows.length ? paginatedRows.map((row) => (
+            <MobileRecordCard
+              actions={
+                <>
+                  <button
+                    className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    onClick={() => startEdit(row)}
+                    type="button"
+                  >
+                    <Pencil size={14} />
+                    Edit
+                  </button>
+                  {canDelete ? (
+                    <button
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      onClick={() => void handleDelete(row)}
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+                  ) : null}
+                </>
+              }
+              badge={<Badge tone={row.crMr === "MR" ? "warning" : "danger"}>{row.crMr}</Badge>}
+              key={row.id}
+              rows={[
+                { label: "S. No.", value: row.serialNumber },
+                { label: "Machine", value: row.machineNumber },
+                { label: "Rejection", value: row.rejectionQuantity },
+                { label: "Reason", value: row.reason },
+                { label: "Cause", value: row.cause },
+                { label: "Updated", value: formatDateTime(row.timestamp) },
+              ]}
+              subtitle={`${formatDate(row.date)} · Shift ${row.shift}`}
+              title={row.partName}
+            />
+          )) : (
+            <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">No quality rows found.</div>
+          )}
+        </div>
+
+        <div className="table-scroll hidden md:block">
           <table className="data-table w-full min-w-[1180px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase text-muted-foreground">

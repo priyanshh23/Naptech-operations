@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { AccessDenied } from "@/components/dashboard/access-denied";
-import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, MobileRecordCard, PageHeader } from "@/components/ui";
 import { deleteInventoryEntry, getInventoryLogs, getInventorySummary, updateInventoryEntry } from "@/lib/api";
 import { downloadExcel, printPdf } from "@/lib/export-utils";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -306,7 +306,59 @@ export default function InventoryLogsPage() {
 
         {error ? <p className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p> : null}
 
-        <div className="mt-5 overflow-x-auto">
+        <div className="mobile-record-list mt-5 md:hidden">
+          {isLoading ? (
+            <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="animate-spin" size={16} />
+                Loading entries...
+              </span>
+            </div>
+          ) : entries.length ? (
+            entries.map((entry) => (
+              <MobileRecordCard
+                actions={
+                  <>
+                    <button
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                      onClick={() => startEdit(entry)}
+                      type="button"
+                    >
+                      <Pencil size={14} />
+                      Edit
+                    </button>
+                    {canDelete ? (
+                      <button
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                        onClick={() => void handleDelete(entry)}
+                        type="button"
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </button>
+                    ) : null}
+                  </>
+                }
+                badge={<Badge tone={entry.balance_quantity < (summary?.low_inventory_threshold ?? 1000) ? "warning" : "success"}>{entry.balance_quantity.toLocaleString("en-IN")}</Badge>}
+                key={entry.id}
+                rows={[
+                  { label: "Schedule", value: entry.schedule_quantity.toLocaleString("en-IN") },
+                  { label: "IN", value: entry.in_quantity.toLocaleString("en-IN") },
+                  { label: "OUT", value: entry.out_quantity.toLocaleString("en-IN") },
+                  { label: "Rejection", value: entry.rejection_quantity.toLocaleString("en-IN") },
+                  { label: "Remarks", value: entry.remarks || "-" },
+                  { label: "Saved", value: formatDateTime(entry.created_at) },
+                ]}
+                subtitle={`${formatDate(entry.date)} · ${entry.created_by}`}
+                title={entry.part_name}
+              />
+            ))
+          ) : (
+            <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">No inventory entries found for the current filters.</div>
+          )}
+        </div>
+
+        <div className="table-scroll mt-5 hidden md:block">
           <table className="data-table w-full min-w-[1100px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase text-muted-foreground">

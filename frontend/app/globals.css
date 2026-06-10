@@ -18,6 +18,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100vh;
   background: hsl(var(--background));
@@ -180,6 +186,11 @@ input,
 select,
 textarea {
   font: inherit;
+  min-width: 0;
+}
+
+button {
+  max-width: 100%;
 }
 
 .metric-grid {
@@ -192,6 +203,42 @@ textarea {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-record-list {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .modal-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    border-radius: 16px !important;
+    max-height: none !important;
+  }
 }
 
 @media (max-width: 760px) {

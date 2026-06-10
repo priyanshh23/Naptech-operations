@@ -15,7 +15,7 @@ import {
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, MobileRecordCard, PageHeader } from "@/components/ui";
 import { createProductionEntries, deleteProductionEntry, getMachineAnalytics, getProductionEntries, getProductionSummary, updateProductionEntry } from "@/lib/api";
 import { downloadExcel, printPdf } from "@/lib/export-utils";
 import { formatDate } from "@/lib/format";
@@ -328,7 +328,51 @@ export default function ProductionPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="max-h-[430px] overflow-auto rounded-xl border border-border">
+          <div className="space-y-3 md:hidden">
+            {draftRows.map((row, index) => (
+              <div className="rounded-2xl border border-border bg-white p-4 dark:bg-white/[0.04]" key={row.rowId}>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-slate-950">Row {index + 1}</p>
+                  <button
+                    className="inline-flex h-9 items-center rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                    onClick={() => removeDraft(row.rowId)}
+                    type="button"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="grid gap-3">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">Shift</span>
+                    <select
+                      className="h-11 w-full rounded-xl border border-border bg-white px-3 outline-none"
+                      onChange={(event) => updateDraft(row.rowId, "shift", event.target.value)}
+                      value={row.shift}
+                    >
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                    </select>
+                  </label>
+                  <DraftField field="date" label="Date" row={row} type="date" updateDraft={updateDraft} />
+                  <DraftField field="machine_number" label="Machine Number" placeholder="CNC-01" row={row} updateDraft={updateDraft} />
+                  <DraftField field="operator_name" label="Operator" placeholder="Rahul" row={row} updateDraft={updateDraft} />
+                  <DraftField field="part_number" label="Part Number" placeholder="TA-204" row={row} updateDraft={updateDraft} />
+                  <DraftField field="part_name" label="Part Name" placeholder="Torque Arm" row={row} updateDraft={updateDraft} />
+                  <DraftField field="cycle_time_seconds" label="Total Time (sec)" row={row} type="number" updateDraft={updateDraft} />
+                  <DraftField field="target_per_hour" label="Target/Hour" row={row} type="number" updateDraft={updateDraft} />
+                  <DraftField field="daily_target" label="Daily Target" row={row} type="number" updateDraft={updateDraft} />
+                  <DraftField field="actual_production" label="Actual Production" row={row} type="number" updateDraft={updateDraft} />
+                  <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-800">
+                    Efficiency: {getEfficiency(row.actual_production, row.daily_target)}%
+                  </div>
+                  <DraftField field="remarks" label="Remarks" placeholder="Delay, tool change..." row={row} updateDraft={updateDraft} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="table-scroll hidden max-h-[430px] rounded-xl border border-border md:block">
             <table className="data-entry-table data-table w-full min-w-[1960px] border-collapse text-left text-sm">
               <colgroup>
                 <col className="w-[110px]" />
@@ -465,7 +509,59 @@ export default function ProductionPage() {
             </button>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="mobile-record-list md:hidden">
+            {isLoading ? (
+              <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="animate-spin" size={16} />
+                  Loading production rows...
+                </span>
+              </div>
+            ) : filteredEntries.length ? (
+              paginatedEntries.map((entry) => (
+                <MobileRecordCard
+                  actions={
+                    <>
+                      <button
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                        onClick={() => startEdit(entry)}
+                        type="button"
+                      >
+                        <Pencil size={14} />
+                        Edit
+                      </button>
+                      {canDelete ? (
+                        <button
+                          className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          onClick={() => void handleDelete(entry)}
+                          type="button"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      ) : null}
+                    </>
+                  }
+                  badge={<Badge tone={entry.efficiency_percent >= 100 ? "success" : entry.efficiency_percent >= 85 ? "warning" : "danger"}>{entry.efficiency_percent}%</Badge>}
+                  key={entry.id}
+                  rows={[
+                    { label: "Shift", value: entry.shift },
+                    { label: "Part No.", value: entry.part_number },
+                    { label: "Target", value: entry.daily_target.toLocaleString("en-IN") },
+                    { label: "Actual", value: entry.actual_production.toLocaleString("en-IN") },
+                    { label: "Operator", value: entry.operator_name },
+                    { label: "Remarks", value: entry.remarks || "-" },
+                  ]}
+                  subtitle={`${formatDate(entry.date)} · ${entry.part_name}`}
+                  title={entry.machine_number}
+                />
+              ))
+            ) : (
+              <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">No production entries found.</div>
+            )}
+          </div>
+
+          <div className="table-scroll hidden md:block">
             <table className="data-table w-full min-w-[1060px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase text-muted-foreground">
@@ -802,6 +898,37 @@ function EditableCell({
         value={String(row[field] ?? "")}
       />
     </td>
+  );
+}
+
+function DraftField({
+  field,
+  label,
+  placeholder,
+  row,
+  type = "text",
+  updateDraft,
+}: Readonly<{
+  field: keyof ProductionEntryPayload;
+  label: string;
+  placeholder?: string;
+  row: DraftRow;
+  type?: string;
+  updateDraft: (rowId: string, field: keyof ProductionEntryPayload, value: string) => void;
+}>) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-medium text-slate-800">{label}</span>
+      <input
+        className="h-11 w-full rounded-xl border border-border bg-white px-3 outline-none focus:border-[#19C93B]/50 focus:ring-4 focus:ring-[#19C93B]/10"
+        min={type === "number" ? 0 : undefined}
+        onChange={(event) => updateDraft(row.rowId, field, event.target.value)}
+        placeholder={placeholder}
+        required={field !== "remarks"}
+        type={type}
+        value={String(row[field] ?? "")}
+      />
+    </label>
   );
 }
 

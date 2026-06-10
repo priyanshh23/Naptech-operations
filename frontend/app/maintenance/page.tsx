@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, MobileRecordCard, PageHeader } from "@/components/ui";
 import { createMaintenanceJob, deleteMaintenanceJob, getMaintenanceJobs, updateMaintenanceJob } from "@/lib/api";
 import { downloadExcel, printPdf } from "@/lib/export-utils";
 import { formatDateTime } from "@/lib/format";
@@ -283,7 +283,50 @@ export default function MaintenancePage() {
             ) : null}
           </label>
         </div>
-        <div className="overflow-x-auto">
+        <div className="mobile-record-list md:hidden">
+          {paginatedJobs.length ? paginatedJobs.map((job) => (
+            <MobileRecordCard
+              actions={
+                <>
+                  <button
+                    className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    onClick={() => startEdit(job)}
+                    type="button"
+                  >
+                    <Pencil size={14} />
+                    Edit
+                  </button>
+                  {canDelete ? (
+                    <button
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      onClick={() => void handleDelete(job)}
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+                  ) : null}
+                </>
+              }
+              badge={<Badge tone={job.status === "Completed" ? "success" : job.status === "In Progress" ? "warning" : "neutral"}>{job.status}</Badge>}
+              key={job.id}
+              rows={[
+                { label: "Machine", value: job.machine },
+                { label: "Team", value: job.team },
+                { label: "From", value: formatDateTime(job.breakdownFrom) },
+                { label: "To", value: formatDateTime(job.breakdownTo) },
+                { label: "Reason", value: job.reason },
+                { label: "Due", value: formatDateTime(job.dueBy) },
+              ]}
+              subtitle={<Badge tone={job.priority === "High" ? "danger" : job.priority === "Medium" ? "warning" : "neutral"}>{job.priority}</Badge>}
+              title={job.jobCode}
+            />
+          )) : (
+            <div className="rounded-2xl border border-border p-4 text-sm text-slate-500">No maintenance jobs found.</div>
+          )}
+        </div>
+
+        <div className="table-scroll hidden md:block">
           <table className="data-table w-full min-w-[1160px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase text-muted-foreground">

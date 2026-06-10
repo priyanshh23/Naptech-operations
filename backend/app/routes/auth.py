@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
@@ -95,25 +96,25 @@ def _sync_authorized_role(db: Session, user: User) -> User:
     return user
 
 
-def _ensure_builtin_password_user(db: Session, email: str, password: str) -> None:
+def _ensure_builtin_password_user(db: Session, email: str, password: str) -> Optional[User]:
     normalized_email = email.strip().lower()
     if password != DEFAULT_PASSWORD or normalized_email not in BUILT_IN_USERS:
-        return
+        return None
 
     name, role = BUILT_IN_USERS[normalized_email]
     existing_user = get_user_by_email(db, normalized_email)
     if not existing_user:
-        create_user(
+        return create_user(
             db,
             RegisterRequest(name=name, email=normalized_email, password=DEFAULT_PASSWORD, role=role),
         )
-        return
 
     existing_user.name = name
     existing_user.role = role.value
     existing_user.password = hash_password(DEFAULT_PASSWORD)
     db.commit()
     db.refresh(existing_user)
+    return existing_user
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
@@ -129,9 +130,13 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
     try:
         login_email = str(payload.email).strip().lower()
         _assert_allowed_login(login_email)
-        _ensure_builtin_password_user(db, login_email, payload.password)
 
-        user = authenticate_user(db, payload.email, payload.password)
+        user = authenticate_user(db, login_email, payload.password)
+        if not user:
+            user = _ensure_builtin_password_user(db, login_email, payload.password)
+            if user:
+                user = authenticate_user(db, login_email, payload.password)
+
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
