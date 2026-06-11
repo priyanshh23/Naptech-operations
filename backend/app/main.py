@@ -7,7 +7,6 @@ from app.models import Inventory, InventoryEntry, InventoryLog, MaintenanceJob, 
 from app.models.user import UserRole
 from app.routes import auth, dashboard, inventory, maintenance, notifications, production, quality, tasks
 from app.schemas.auth import RegisterRequest
-from app.services.production_service import seed_demo_production_entries
 from app.services.user_service import create_user, get_user_by_email
 from app.utils.config import settings
 from app.utils.security import hash_password
@@ -64,9 +63,6 @@ def startup() -> None:
                 existing_user.role = role.value
                 existing_user.password = hash_password("password")
                 db.commit()
-
-        seed_demo_production_entries(db)
-
 
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:
