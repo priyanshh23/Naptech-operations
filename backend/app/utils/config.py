@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     allowed_login_domain: str = ""
     allowed_login_emails: str = "priyanshgupta9877@gmail.com,naptechprecision@gmail.com"
     password_reset_code: str = ""
+    next_public_api_base_url: str = ""
+    next_public_google_client_id: str = ""
 
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).resolve().parents[2] / ".env"),

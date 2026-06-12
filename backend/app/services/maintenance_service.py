@@ -3,12 +3,13 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import String, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.maintenance_job import MaintenanceJob
 from app.models.user import User
 from app.schemas.maintenance import MaintenanceJobCreate, MaintenanceJobUpdate
+from app.utils.search import search_patterns
 
 
 def _latest_ordering():
@@ -18,17 +19,27 @@ def _latest_ordering():
 def _query_jobs(search: Optional[str] = None):
     statement = select(MaintenanceJob)
     if search:
-        pattern = f"%{search.strip()}%"
-        statement = statement.where(
-            or_(
-                MaintenanceJob.job_code.ilike(pattern),
-                MaintenanceJob.machine.ilike(pattern),
-                MaintenanceJob.team.ilike(pattern),
-                MaintenanceJob.priority.ilike(pattern),
-                MaintenanceJob.status.ilike(pattern),
-                MaintenanceJob.reason.ilike(pattern),
+        patterns = search_patterns(search)
+        if patterns:
+            statement = statement.where(
+                or_(
+                    *[
+                        column.ilike(pattern)
+                        for pattern in patterns
+                        for column in (
+                            MaintenanceJob.job_code,
+                            MaintenanceJob.machine,
+                            MaintenanceJob.team,
+                            MaintenanceJob.priority,
+                            MaintenanceJob.status,
+                            cast(MaintenanceJob.breakdown_from, String),
+                            cast(MaintenanceJob.breakdown_to, String),
+                            MaintenanceJob.reason,
+                            cast(MaintenanceJob.due_by, String),
+                        )
+                    ]
+                )
             )
-        )
     return statement
 
 

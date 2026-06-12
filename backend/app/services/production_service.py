@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import Float, String, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.production_entry import ProductionEntry
@@ -14,6 +14,7 @@ from app.schemas.production import (
     ProductionEntryUpdate,
     ProductionSummaryResponse,
 )
+from app.utils.search import search_patterns
 
 
 def _latest_ordering():
@@ -43,16 +44,35 @@ def _query_entries(
     statement = select(ProductionEntry)
 
     if search:
-        pattern = f"%{search.strip()}%"
-        statement = statement.where(
-            or_(
-                ProductionEntry.machine_number.ilike(pattern),
-                ProductionEntry.operator_name.ilike(pattern),
-                ProductionEntry.part_number.ilike(pattern),
-                ProductionEntry.part_name.ilike(pattern),
-                ProductionEntry.remarks.ilike(pattern),
-            )
+        patterns = search_patterns(search)
+        efficiency = func.round(
+            (cast(ProductionEntry.actual_production, Float) / func.nullif(ProductionEntry.daily_target, 0)) * 100,
+            1,
         )
+        if patterns:
+            statement = statement.where(
+                or_(
+                    *[
+                        column.ilike(pattern)
+                        for pattern in patterns
+                        for column in (
+                            cast(ProductionEntry.id, String),
+                            cast(ProductionEntry.date, String),
+                            ProductionEntry.shift,
+                            ProductionEntry.machine_number,
+                            ProductionEntry.operator_name,
+                            ProductionEntry.part_number,
+                            ProductionEntry.part_name,
+                            cast(ProductionEntry.cycle_time_seconds, String),
+                            cast(ProductionEntry.target_per_hour, String),
+                            cast(ProductionEntry.daily_target, String),
+                            cast(ProductionEntry.actual_production, String),
+                            cast(efficiency, String),
+                            ProductionEntry.remarks,
+                        )
+                    ]
+                )
+            )
     if date_from:
         statement = statement.where(ProductionEntry.date >= date_from)
     if date_to:

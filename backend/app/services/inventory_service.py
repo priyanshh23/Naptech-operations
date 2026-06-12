@@ -2,7 +2,7 @@ from datetime import date
 from typing import Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import String, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.inventory_entry import InventoryEntry
@@ -16,6 +16,7 @@ from app.schemas.inventory import (
     InventorySummaryResponse,
 )
 from app.utils.config import settings
+from app.utils.search import search_patterns
 
 
 def _entry_ordering():
@@ -35,14 +36,28 @@ def _query_entries(
     statement = select(InventoryEntry)
 
     if search:
-        search_pattern = f"%{search.strip()}%"
-        statement = statement.where(
-            or_(
-                InventoryEntry.part_name.ilike(search_pattern),
-                InventoryEntry.remarks.ilike(search_pattern),
-                InventoryEntry.created_by.ilike(search_pattern),
+        patterns = search_patterns(search)
+        if patterns:
+            statement = statement.where(
+                or_(
+                    *[
+                        column.ilike(pattern)
+                        for pattern in patterns
+                        for column in (
+                            cast(InventoryEntry.date, String),
+                            InventoryEntry.part_name,
+                            cast(InventoryEntry.schedule_quantity, String),
+                            cast(InventoryEntry.in_quantity, String),
+                            cast(InventoryEntry.out_quantity, String),
+                            cast(InventoryEntry.rejection_quantity, String),
+                            cast(InventoryEntry.balance_quantity, String),
+                            InventoryEntry.remarks,
+                            InventoryEntry.created_by,
+                            cast(InventoryEntry.created_at, String),
+                        )
+                    ]
+                )
             )
-        )
 
     if part_name:
         statement = statement.where(InventoryEntry.part_name == part_name)

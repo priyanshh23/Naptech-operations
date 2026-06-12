@@ -2,12 +2,13 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import String, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.quality_rejection import QualityRejection
 from app.models.user import User
 from app.schemas.quality import QualityRejectionCreate, QualityRejectionUpdate
+from app.utils.search import search_patterns
 
 
 def _latest_ordering():
@@ -17,18 +18,28 @@ def _latest_ordering():
 def _query_rejections(search: Optional[str] = None):
     statement = select(QualityRejection)
     if search:
-        pattern = f"%{search.strip()}%"
-        statement = statement.where(
-            or_(
-                QualityRejection.serial_number.ilike(pattern),
-                QualityRejection.machine_number.ilike(pattern),
-                QualityRejection.part_name.ilike(pattern),
-                QualityRejection.reason.ilike(pattern),
-                QualityRejection.cause.ilike(pattern),
-                QualityRejection.cr_mr.ilike(pattern),
-                QualityRejection.remarks.ilike(pattern),
+        patterns = search_patterns(search)
+        if patterns:
+            statement = statement.where(
+                or_(
+                    *[
+                        column.ilike(pattern)
+                        for pattern in patterns
+                        for column in (
+                            cast(QualityRejection.date, String),
+                            QualityRejection.shift,
+                            QualityRejection.serial_number,
+                            QualityRejection.machine_number,
+                            QualityRejection.part_name,
+                            cast(QualityRejection.rejection_quantity, String),
+                            QualityRejection.reason,
+                            QualityRejection.cr_mr,
+                            QualityRejection.remarks,
+                            cast(QualityRejection.updated_at, String),
+                        )
+                    ]
+                )
             )
-        )
     return statement
 
 
