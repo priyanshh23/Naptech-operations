@@ -66,6 +66,60 @@ def _task_counts_by_status(db: Session, date_from: Optional[date], date_to: Opti
     return counts
 
 
+def get_empty_dashboard_summary() -> DashboardSummary:
+    production_summary = {status.value: 0 for status in TaskStatus}
+    return DashboardSummary(
+        total_inventory=0,
+        total_in_quantity=0,
+        total_out_quantity=0,
+        total_rejections=0,
+        low_stock_count=0,
+        active_tasks=0,
+        delayed_tasks=0,
+        completed_tasks=0,
+        production_summary=production_summary,
+        quality_overview=DashboardQualityOverview(rejection=0, mr=0, cr=0),
+        maintenance_overview=DashboardMaintenanceOverview(open=0, high=0, completed=0),
+        kpi_metrics=[
+            DashboardMetric(
+                label="Total Inventory",
+                value=0,
+                trend="No live data",
+                trend_direction="up",
+                sparkline=[DashboardMetricPoint(value=0)],
+            ),
+            DashboardMetric(
+                label="Total IN Quantity",
+                value=0,
+                trend="No live data",
+                trend_direction="up",
+                sparkline=[DashboardMetricPoint(value=0)],
+            ),
+            DashboardMetric(
+                label="Total OUT Quantity",
+                value=0,
+                trend="No live data",
+                trend_direction="up",
+                sparkline=[DashboardMetricPoint(value=0)],
+            ),
+            DashboardMetric(
+                label="Low Stock Items",
+                value=0,
+                trend=f"Threshold < {settings.inventory_low_threshold}",
+                trend_direction="down",
+                sparkline=[DashboardMetricPoint(value=0)],
+            ),
+        ],
+        inventory_categories=[],
+        movement_series=[],
+        alerts=[],
+        low_stock_items=[],
+        active_tasks_table=[],
+        recent_activities=[],
+        updated_at=datetime.utcnow(),
+    )
+
+
 def get_dashboard_summary(
     db: Session,
     date_from: Optional[date] = None,

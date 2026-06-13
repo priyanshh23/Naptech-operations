@@ -9,7 +9,7 @@ from app.database.session import get_db
 from app.middleware.auth import get_current_user
 from app.models.user import User
 from app.schemas.dashboard import DashboardSummary
-from app.services.dashboard_service import get_dashboard_summary
+from app.services.dashboard_service import get_dashboard_summary, get_empty_dashboard_summary
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -21,4 +21,8 @@ def get_dashboard(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ) -> DashboardSummary:
-    return get_dashboard_summary(db, date_from, date_to)
+    try:
+        return get_dashboard_summary(db, date_from, date_to)
+    except Exception as error:
+        print(f"Dashboard summary fallback: {error}")
+        return get_empty_dashboard_summary()
