@@ -49,6 +49,8 @@ def _is_email_allowed(email: str) -> bool:
     normalized_email = email.strip().lower()
     allowed_domain = settings.allowed_login_domain.strip().lower().lstrip("@")
     return (
+        normalized_email in ROLE_BY_EMAIL
+        or
         has_full_access_email(normalized_email)
         or normalized_email in settings.login_allowlist_emails
         or bool(allowed_domain and normalized_email.endswith(f"@{allowed_domain}"))

@@ -113,7 +113,7 @@ export function LoginForm() {
         return;
       }
       if (normalized.includes("invalid email or password")) {
-        setError("Invalid email or password. For local approved accounts, use password: password.");
+        setError("Invalid email or password. Approved built-in accounts can sign in with password: password.");
         return;
       }
       if (normalized.includes("access denied") || normalized.includes("approved company account")) {
