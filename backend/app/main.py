@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.database.base import Base
 from app.database.session import SessionLocal, engine
@@ -50,8 +51,14 @@ def ensure_schema_updates() -> None:
 
 @app.on_event("startup")
 def startup() -> None:
-    Base.metadata.create_all(bind=engine)
-    ensure_schema_updates()
+    try:
+        Base.metadata.create_all(bind=engine)
+        ensure_schema_updates()
+    except SQLAlchemyError as error:
+        # Keep serverless health checks alive even when the hosted database
+        # needs configuration. Database-backed routes will still report errors.
+        print(f"Database startup skipped: {error}")
+        return
 
     if settings.environment != "development":
         return
