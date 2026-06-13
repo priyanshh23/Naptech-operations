@@ -233,6 +233,44 @@ def get_dashboard_summary(
         for entry in production_entries
     )
 
+    quality_statement = select(
+        func.coalesce(func.sum(QualityRejection.rejection_quantity), 0),
+        func.coalesce(
+            func.sum(case((QualityRejection.cr_mr == "MR", QualityRejection.rejection_quantity), else_=0)),
+            0,
+        ),
+        func.coalesce(
+            func.sum(case((QualityRejection.cr_mr == "CR", QualityRejection.rejection_quantity), else_=0)),
+            0,
+        ),
+    )
+    quality_statement = _date_filtered(quality_statement, QualityRejection.date, date_from, date_to)
+    rejection_total, mr_total, cr_total = db.execute(quality_statement).one()
+    quality_overview = DashboardQualityOverview(
+        rejection=int(rejection_total or 0),
+        mr=int(mr_total or 0),
+        cr=int(cr_total or 0),
+    )
+
+    maintenance_statement = select(
+        func.count(),
+        func.coalesce(
+            func.sum(case((func.lower(MaintenanceJob.priority) == "high", 1), else_=0)),
+            0,
+        ),
+        func.coalesce(
+            func.sum(case((func.lower(MaintenanceJob.status) == "completed", 1), else_=0)),
+            0,
+        ),
+    )
+    maintenance_statement = _date_filtered(maintenance_statement, MaintenanceJob.updated_at, date_from, date_to)
+    maintenance_total, high_total, completed_total = db.execute(maintenance_statement).one()
+    maintenance_overview = DashboardMaintenanceOverview(
+        open=max(int(maintenance_total or 0) - int(completed_total or 0), 0),
+        high=int(high_total or 0),
+        completed=int(completed_total or 0),
+    )
+
     return DashboardSummary(
         total_inventory=inventory_summary.total_inventory,
         total_in_quantity=inventory_summary.total_in_quantity,
