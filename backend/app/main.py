@@ -95,6 +95,25 @@ def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/health/db", tags=["health"])
+def database_health_check() -> dict[str, str]:
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return {
+            "status": "ok",
+            "database": engine.url.get_backend_name(),
+            "driver": engine.url.get_driver_name(),
+        }
+    except Exception as error:
+        return {
+            "status": "error",
+            "database": engine.url.get_backend_name(),
+            "driver": engine.url.get_driver_name(),
+            "detail": str(error),
+        }
+
+
 @app.get("/", tags=["health"])
 def root_check() -> dict[str, str]:
     return {"status": "ok", "service": settings.app_name}
