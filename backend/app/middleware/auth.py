@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -24,6 +25,15 @@ ROLE_BY_EMAIL = {
     "maintenance@naptech.in": UserRole.MAINTENANCE.value,
     **{email: UserRole.MANAGER.value for email in FULL_ACCESS_EMAILS},
 }
+NAME_BY_EMAIL = {
+    ADMIN_EMAIL: "Admin",
+    "inventory@naptech.in": "Inventory Operator",
+    "production@naptech.in": "Production Operator",
+    "quality@naptech.in": "Quality Operator",
+    "maintenance@naptech.in": "Maintenance Operator",
+    "priyanshgupta9877@gmail.com": "Priyansh Gupta",
+    "naptechprecision@gmail.com": "Naptech Precision",
+}
 
 
 def has_full_access_email(email: str) -> bool:
@@ -45,6 +55,20 @@ def _is_email_allowed(email: str) -> bool:
     )
 
 
+def _transient_allowed_user(email: str) -> Optional[User]:
+    normalized_email = email.strip().lower()
+    role = ROLE_BY_EMAIL.get(normalized_email)
+    if not role:
+        return None
+    return User(
+        id=0,
+        name=NAME_BY_EMAIL.get(normalized_email, normalized_email.split("@")[0].title()),
+        email=normalized_email,
+        password="",
+        role=role,
+    )
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db),
@@ -56,8 +80,18 @@ def get_current_user(
             detail="Invalid authentication credentials",
         )
 
-    user = get_user_by_email(db, email)
+    try:
+        user = get_user_by_email(db, email)
+    except Exception as error:
+        user = _transient_allowed_user(email)
+        if user:
+            print(f"Using transient built-in user for {email}: {error}")
+            return user
+        raise
     if not user:
+        transient_user = _transient_allowed_user(email)
+        if transient_user:
+            return transient_user
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     if not _is_email_allowed(user.email):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Use an approved company account.")
